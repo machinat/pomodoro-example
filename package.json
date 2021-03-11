@@ -1,0 +1,77 @@
+{
+  "name": "tamato-machina",
+  "private": true,
+  "scripts": {
+    "clean": "rm -rf ./lib ./dist",
+    "lint": "eslint --ext .ts --ext .js --ext .tsx ./src",
+    "migrate": "node -r dotenv/config ./lib/cli/migrate.js",
+    "test": "jest",
+    "build": "tsc",
+    "start": "node -r dotenv/config ./lib/serve.js",
+    "dev": "nodemon -x ts-node -w src -i src/webview -r dotenv/config -e 'ts tsx' ./src/serve.ts"
+  },
+  "license": "MIT",
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint -- --quiet"
+    }
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node"
+  },
+  "dependencies": {
+    "@machinat/auth": "file:machinat-auth-0.4.0-beta.0.tgz",
+    "@machinat/core": "file:machinat-core-0.4.0-beta.0.tgz",
+    "@machinat/dialogflow": "file:machinat-dialogflow-0.4.0-beta.0.tgz",
+    "@machinat/http": "file:machinat-http-0.4.0-beta.0.tgz",
+    "@machinat/jest-snapshot-serializer": "file:machinat-jest-snapshot-serializer-0.3.0-beta.2.tgz",
+    "@machinat/line": "file:machinat-line-0.4.0-beta.0.tgz",
+    "@machinat/local-state": "file:machinat-local-state-0.4.0-beta.0.tgz",
+    "@machinat/messenger": "file:machinat-messenger-0.4.0-beta.0.tgz",
+    "@machinat/next": "file:machinat-next-0.4.0-beta.0.tgz",
+    "@machinat/redis-state": "file:machinat-redis-state-0.4.0-beta.0.tgz",
+    "@machinat/script": "file:machinat-script-0.4.0-beta.0.tgz",
+    "@machinat/telegram": "file:machinat-telegram-0.4.0-beta.0.tgz",
+    "@machinat/websocket": "file:machinat-websocket-0.4.0-beta.0.tgz",
+    "@machinat/webview": "file:machinat-webview-0.4.0-beta.0.tgz",
+    "@machinat/x-machinat": "file:machinat-x-machinat-0.3.0-beta.0.tgz",
+    "@material-ui/core": "^4.11.0",
+    "@material-ui/icons": "^4.9.1",
+    "@material-ui/lab": "^4.0.0-alpha.56",
+    "axios": "^0.21.1",
+    "commander": "^2.20.0",
+    "dotenv": "^8.0.0",
+    "draft-js": "^0.11.7",
+    "next": "^9.5.5",
+    "ordinal": "^1.0.3",
+    "react": "^16.13.1",
+    "react-bootstrap": "^1.0.1",
+    "react-dom": "^16.13.1",
+    "rxjs": "^6.5.2",
+    "styled-components": "^4.3.2",
+    "symbol-observable": "^1.2.0",
+    "umzug": "^2.3.0",
+    "yaml": "^1.10.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^26.0.14",
+    "@types/node": "^14.11.8",
+    "@types/react": "^16.9.52",
+    "@typescript-eslint/eslint-plugin": "^4.3.0",
+    "@typescript-eslint/parser": "^4.3.0",
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-config-prettier": "^6.12.0",
+    "eslint-plugin-import": "^2.18.0",
+    "eslint-plugin-prettier": "^3.1.0",
+    "eslint-plugin-react": "^7.14.2",
+    "husky": "^4.2.5",
+    "jest": "^24.8.0",
+    "nodemon": ">=1.19.1",
+    "prettier": "^2.1.2",
+    "ts-jest": "^26.4.1",
+    "ts-node": "^9.0.0",
+    "typescript": "^4.0.3"
+  }
+}
