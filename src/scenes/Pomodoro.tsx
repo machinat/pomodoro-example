@@ -30,6 +30,7 @@ type PomodoroVars = {
   remainingTime: undefined | number;
   timingStatus: TimingStatus;
   action: AppActionType;
+  timingDueAt: Date;
 };
 
 export default build<void, PomodoroVars, AppEventContext, void, void>(
@@ -46,6 +47,7 @@ export default build<void, PomodoroVars, AppEventContext, void, void>(
       action: ACTION_OK,
       remainingTime: undefined,
       timingStatus: TimingStatus.Working,
+      timingDueAt: new Date(0),
     }),
   },
   <$<PomodoroVars>>
@@ -86,16 +88,28 @@ export default build<void, PomodoroVars, AppEventContext, void, void>(
     <WHILE<PomodoroVars> condition={() => true}>
       <CALL<PomodoroVars, typeof Starting>
         script={Starting}
-        params={({ vars }) => ({ ...vars })}
-        set={({ vars }, { settings }) => ({ ...vars, settings })}
         key="wait-starting"
+        params={({ vars }) => ({ ...vars })}
+        set={({ vars }, { settings }) => ({
+          ...vars,
+          settings,
+          timingDueAt: new Date(
+            Date.now() +
+              (vars.timingStatus === TimingStatus.Working
+                ? settings.workingMins
+                : vars.timingStatus === TimingStatus.LongBreak
+                ? settings.longBreakMins
+                : settings.shortBreakMins) *
+                60000
+          ),
+        })}
       />
 
       <EFFECT<PomodoroVars>
         do={makeContainer({
           deps: [Timer],
         })((timer) => ({ vars, channel }) => () =>
-          timer.registerTimer(channel as AppChannel, vars.settings.workingMins)
+          timer.registerTimer(channel as AppChannel, vars.timingDueAt)
         )}
       />
 
@@ -109,16 +123,14 @@ export default build<void, PomodoroVars, AppEventContext, void, void>(
           const { pomodoroNum, timingStatus } = vars;
           const isFininshed = !remainingTime;
 
-          const nextPomodoroNum =
-            isFininshed && timingStatus === TimingStatus.Working
-              ? pomodoroNum + 1
-              : pomodoroNum;
-
           return {
             ...vars,
             settings,
             remainingTime,
-            pomodoroNum: nextPomodoroNum,
+            pomodoroNum:
+              isFininshed && timingStatus === TimingStatus.Working
+                ? pomodoroNum + 1
+                : pomodoroNum,
             timingStatus: !isFininshed
               ? timingStatus
               : timingStatus === TimingStatus.Working
@@ -131,17 +143,13 @@ export default build<void, PomodoroVars, AppEventContext, void, void>(
         key="wait-timing"
       />
 
-      <IF<PomodoroVars> condition={({ vars }) => !!vars.remainingTime}>
-        <THEN>
-          <EFFECT<PomodoroVars>
-            do={makeContainer({
-              deps: [Timer],
-            })((timer) => ({ channel }) => () =>
-              timer.cancelTimer(channel as AppChannel)
-            )}
-          />
-        </THEN>
-      </IF>
+      <EFFECT<PomodoroVars>
+        do={makeContainer({
+          deps: [Timer],
+        })((timer) => ({ vars, channel }) => () =>
+          timer.cancelTimer(channel as AppChannel, vars.timingDueAt)
+        )}
+      />
     </WHILE>
   </$>
 );

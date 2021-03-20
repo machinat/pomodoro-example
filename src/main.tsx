@@ -18,7 +18,7 @@ const main = (app: typeof App): void => {
   timer.onTimesUp((targets) => {
     const [bot, scope] = app.useServices([BaseBot, ServiceScope]);
 
-    for (const { channel, minutes } of targets) {
+    for (const { channel } of targets) {
       const { platform } = channel;
 
       timerSubject.next({
@@ -30,7 +30,7 @@ const main = (app: typeof App): void => {
             platform,
             kind: 'timer',
             type: 'time_up',
-            payload: { minutes },
+            payload: null,
             channel,
             user: null,
           },

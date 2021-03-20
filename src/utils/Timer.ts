@@ -8,17 +8,18 @@ import type { LineChat } from '@machinat/line/types';
 
 type TimerData = {
   channel: MessengerChat | TelegramChat | LineChat;
-  minutes: number;
 };
 
-const CHAT_TIME_UP_KEY = 'chat_time_up';
-
 type TimeUpListener = (timeUpTargets: TimerData[]) => void;
+
+const getDueTimeInterval = (dueDate: Date) =>
+  Math.ceil(dueDate.getTime() / 10000);
 
 export class Timer {
   stateController: StateController;
   private _intervalId: null | NodeJS.Timeout;
   private _listeners: TimeUpListener[];
+  private _currentInterval: number;
 
   constructor(stateController: StateController) {
     this.stateController = stateController;
@@ -26,7 +27,7 @@ export class Timer {
   }
 
   start(): void {
-    this._intervalId = setInterval(this._handleTimesUp.bind(this), 30000);
+    this._intervalId = setInterval(this._handleTimesUp.bind(this), 5000);
   }
 
   stop(): void {
@@ -38,33 +39,29 @@ export class Timer {
 
   async registerTimer(
     channel: MessengerChat | TelegramChat | LineChat,
-    minutes: number
+    dueDate: Date
   ): Promise<void> {
-    const minuteKey = new Date(Date.now() + minutes * 60000)
-      .toISOString()
-      .slice(0, -8);
+    const interval = getDueTimeInterval(dueDate);
+    if (this._currentInterval >= interval) {
+      return;
+    }
 
     await this.stateController
-      .channelState(channel)
-      .set(CHAT_TIME_UP_KEY, minuteKey);
-    await this.stateController
-      .globalState(minuteKey)
-      .set<TimerData>(channel.uid, { channel, minutes });
+      .globalState(interval.toString())
+      .set<TimerData>(channel.uid, { channel });
   }
 
   async cancelTimer(
-    channel: MessengerChat | TelegramChat | LineChat
+    channel: MessengerChat | TelegramChat | LineChat,
+    dueDate: Date
   ): Promise<boolean> {
-    const minuteKey = await this.stateController
-      .channelState(channel)
-      .get<string>(CHAT_TIME_UP_KEY);
-
-    if (!minuteKey) {
+    const interval = getDueTimeInterval(dueDate);
+    if (this._currentInterval >= interval) {
       return false;
     }
 
     const isDeleted = await this.stateController
-      .globalState(minuteKey)
+      .globalState(interval.toString())
       .delete(channel.uid);
     return isDeleted;
   }
@@ -74,8 +71,13 @@ export class Timer {
   }
 
   private async _handleTimesUp() {
-    const minuteKey = new Date().toISOString().slice(0, -8);
-    const minuteState = this.stateController.globalState(minuteKey);
+    const interval = Math.floor(Date.now() / 10000);
+    if (this._currentInterval >= interval) {
+      return;
+    }
+    this._currentInterval = interval;
+
+    const minuteState = this.stateController.globalState(interval.toString());
 
     const timingChats = await minuteState.getAll<TimerData>();
     if (timingChats.size === 0) {

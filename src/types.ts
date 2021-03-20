@@ -46,9 +46,7 @@ export type TimeUpEvent = {
   platform: 'messenger' | 'telegram' | 'line';
   kind: 'timer';
   type: 'time_up';
-  payload: {
-    minutes: number;
-  };
+  payload: null;
   user: null;
   channel: AppChannel;
 };
