@@ -3,8 +3,8 @@ import { makeContainer, ServiceScope } from '@machinat/core/service';
 import BaseBot from '@machinat/core/base/Bot';
 import { MarkSeen } from '@machinat/messenger/components';
 import Script from '@machinat/script';
-import { fromApp, merge, Subject } from '@machinat/x-machinat';
-import { filter, tap } from '@machinat/x-machinat/operators';
+import { fromApp, merge, Subject } from '@machinat/stream';
+import { filter, tap } from '@machinat/stream/operators';
 
 import Timer from './utils/Timer';
 import Pomodoro from './scenes/Pomodoro';
@@ -39,29 +39,28 @@ const main = (app: typeof App): void => {
         },
       });
     }
-
-    return timer.start();
   });
 
   const events$ = merge(fromApp(app), timerSubject);
 
-  events$.subscribe(
-    makeContainer({ deps: [Machinat.Bot, Script.Processor] as const })(
-      (bot, scriptProcessor) => async (context) => {
-        const { channel } = context.event;
-        if (!channel) {
-          return;
-        }
+  events$.pipe(
+    tap(
+      makeContainer({ deps: [Machinat.Bot, Script.Processor] as const })(
+        (bot, scriptProcessor) => async (context) => {
+          const { channel } = context.event;
+          if (!channel) {
+            return;
+          }
 
-        let runtime = await scriptProcessor.continue(channel, context);
-        if (!runtime) {
-          runtime = await scriptProcessor.start(channel, Pomodoro);
-        }
+          let runtime = await scriptProcessor.continue(channel, context);
+          if (!runtime) {
+            runtime = await scriptProcessor.start(channel, Pomodoro);
+          }
 
-        await bot.render(channel, runtime.output());
-      }
-    ),
-    console.error
+          await bot.render(channel, runtime.output());
+        }
+      )
+    )
   );
 
   events$.pipe(

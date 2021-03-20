@@ -3,6 +3,7 @@ import Machinat from '@machinat/core';
 import { makeContainer } from '@machinat/core/service';
 import { build } from '@machinat/script';
 import {
+  $,
   IF,
   THEN,
   VARS,
@@ -11,76 +12,69 @@ import {
   CALL,
   RETURN,
 } from '@machinat/script/keywords';
-import type { ScriptCircs } from '@machinat/script/types';
 import TimingPanel from '../components/TimingPanel';
 import StopingPanel from '../components/StopingPanel';
 import SettingsPanel from '../components/SettingsPanel';
 import About from '../components/About';
 
 import useEventIntent from '../utils/useEventIntent';
+import formatTime from '../utils/formatTime';
 import {
-  ACTION_GO,
   ACTION_ABOUT,
   ACTION_STOP,
   ACTION_PAUSE,
   ACTION_SETTINGS,
   ACTION_SET_UP,
   ACTION_TIME_UP,
-  INTENT_OK,
-  INTENT_NO,
-  INTENT_UNKNOWN,
+  ACTION_OK,
+  TimingStatus,
 } from '../constant';
 import type {
   PomodoroSettings,
   AppActionType,
   AppEventContext,
 } from '../types';
-import SetUp, { SetUpReturn } from './SetUp';
+import SetUp from './SetUp';
 
-export type TimingVars = {
-  beginAt: Date;
-  pauseAt?: Date;
-  count: number;
+export type TimingParams = {
+  time: number;
+  pomodoroNum: number;
   settings: PomodoroSettings;
-  action?: AppActionType;
+  timingStatus: TimingStatus;
 };
 
-type TimingCircs = ScriptCircs<TimingVars>;
+export type TimingVars = TimingParams & {
+  beginAt: Date;
+  pauseAt: null | Date;
+  action: AppActionType;
+};
 
 export type TimingReturn = {
   settings: PomodoroSettings;
   remainingTime: undefined | number;
 };
 
-const Timing = build<TimingVars, AppEventContext, TimingReturn, void>(
-  'Timing',
-  <>
-    <WHILE
-      condition={({ vars: { action } }: TimingCircs) =>
-        action !== ACTION_TIME_UP && action !== ACTION_PAUSE
+export default build<TimingParams, TimingVars, AppEventContext, TimingReturn>(
+  {
+    name: 'Timing',
+    initVars: (params) => ({
+      ...params,
+      beginAt: new Date(),
+      pauseAt: null,
+      action: ACTION_OK,
+    }),
+  },
+  <$<TimingVars>>
+    <WHILE<TimingVars>
+      condition={({ vars: { action, time, beginAt } }) =>
+        action !== ACTION_TIME_UP &&
+        action !== ACTION_PAUSE &&
+        time > Date.now() - beginAt.getTime()
       }
     >
-      <IF condition={({ vars }: TimingCircs) => vars.action === ACTION_SET_UP}>
-        <THEN>
-          <CALL
-            script={SetUp}
-            withVars={({ vars: { settings } }: TimingCircs) => ({
-              settings,
-            })}
-            set={({ vars }: TimingCircs, { settings }: SetUpReturn) => ({
-              ...vars,
-              settings,
-            })}
-            key="setting-up"
-          />
-
-          <VARS
-            set={({ vars }: TimingCircs) => ({ ...vars, actions: ACTION_GO })}
-          />
-        </THEN>
-      </IF>
-
-      {({ vars: { action, settings, count, beginAt } }: TimingCircs) => {
+      {({
+        vars: { action, time, timingStatus, settings, pomodoroNum, beginAt },
+      }) => {
         switch (action) {
           case ACTION_ABOUT:
             return <About />;
@@ -89,61 +83,77 @@ const Timing = build<TimingVars, AppEventContext, TimingReturn, void>(
           case ACTION_STOP:
             return (
               <StopingPanel>
-                Are you sure to stop current Pomodoro?
+                Skip current{' '}
+                {timingStatus === TimingStatus.Working ? 'pomodoro' : 'break'}?
               </StopingPanel>
             );
           default:
             return (
               <TimingPanel>
-                It's now your {ordinal(count)} Pomodoro 🍅 today,
-                {settings.pomodoroTime -
-                  Math.trunc((Date.now() - beginAt.getTime()) / 60000)}
-                minutes remaining.
+                {timingStatus === TimingStatus.Working
+                  ? `${ordinal(pomodoroNum)} 🍅`
+                  : 'Break time'}
+                , {formatTime(time - (Date.now() - beginAt.getTime()))}{' '}
+                remaining.
               </TimingPanel>
             );
         }
       }}
 
-      <PROMPT
+      <PROMPT<TimingVars, AppEventContext>
         key="wait-timing-up"
         set={makeContainer({ deps: [useEventIntent] })(
-          (getIntent) => async (
-            { vars }: TimingCircs,
-            { event }: AppEventContext
-          ): Promise<TimingVars> => {
+          (getIntent) => async ({ vars }, { event }) => {
             const { type: intentType } = await getIntent(event);
-            const pauseAt =
-              intentType === ACTION_PAUSE ? new Date() : undefined;
+            const pauseAt = intentType === ACTION_PAUSE ? new Date() : null;
 
             return {
               ...vars,
               pauseAt,
               action:
-                intentType === INTENT_NO || intentType === INTENT_UNKNOWN
-                  ? undefined
-                  : intentType === INTENT_OK
+                intentType === ACTION_OK
                   ? vars.action === ACTION_STOP
                     ? ACTION_TIME_UP
-                    : undefined
+                    : ACTION_OK
                   : intentType,
             };
           }
         )}
       />
+
+      <IF<TimingVars> condition={({ vars }) => vars.action === ACTION_SET_UP}>
+        <THEN>
+          <CALL<TimingVars, typeof SetUp>
+            script={SetUp}
+            params={({ vars: { settings } }) => ({ settings })}
+            set={({ vars }, { settings }) => ({ ...vars, settings })}
+            key="setting-up"
+          />
+
+          <VARS<TimingVars>
+            set={({ vars }) => ({ ...vars, actions: ACTION_OK })}
+          />
+        </THEN>
+      </IF>
     </WHILE>
 
-    <RETURN
-      value={({
-        vars: { beginAt, pauseAt, settings },
-      }: TimingCircs): TimingReturn => ({
+    {({ vars: { timingStatus, pomodoroNum, pauseAt } }) =>
+      timingStatus === TimingStatus.Working ? (
+        <p>
+          {ordinal(pomodoroNum)} 🍅 {pauseAt ? 'paused' : 'finished'}!
+        </p>
+      ) : (
+        <p>Break time {pauseAt ? 'paused' : 'is up'}!</p>
+      )
+    }
+
+    <RETURN<TimingVars, TimingReturn>
+      value={({ vars: { beginAt, pauseAt, settings, time } }) => ({
         settings,
-        remainingTime:
-          pauseAt &&
-          settings.pomodoroTime * 60000 -
-            (pauseAt.getTime() - beginAt.getTime()),
+        remainingTime: pauseAt
+          ? time - (pauseAt.getTime() - beginAt.getTime())
+          : undefined,
       })}
     />
-  </>
+  </$>
 );
-
-export default Timing;

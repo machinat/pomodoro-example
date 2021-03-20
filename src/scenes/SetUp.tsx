@@ -1,5 +1,4 @@
 import Machinat from '@machinat/core';
-import type { ScriptCircs } from '@machinat/script/types';
 import { build } from '@machinat/script';
 import {
   IF,
@@ -13,39 +12,37 @@ import type { PomodoroSettings, AppEventContext } from '../types';
 
 export type SetUpVars = {
   settings: PomodoroSettings;
-  answerSlot?: number;
+  answerSlot: undefined | number;
 };
 
-type SetUpCircs = ScriptCircs<SetUpVars>;
-
-export type SetUpReturn = {
+export type SetUpData = {
   settings: PomodoroSettings;
 };
 
-const ASKING = (field: string, words: string) => (
+const ASKING = (field: keyof PomodoroSettings, words: string) => (
   <>
     {() => words}
 
-    <WHILE
-      condition={({ vars: { answerSlot } }: SetUpCircs) =>
+    <WHILE<SetUpVars>
+      condition={({ vars: { answerSlot } }) =>
         !answerSlot || Number.isNaN(answerSlot)
       }
     >
-      <IF condition={({ vars }: SetUpCircs) => vars.answerSlot === undefined}>
+      <IF<SetUpVars> condition={({ vars }) => Number.isNaN(vars.answerSlot)}>
         <THEN>{() => 'Please give me a number'}</THEN>
       </IF>
 
-      <PROMPT
+      <PROMPT<SetUpVars, AppEventContext>
         key={`ask-${field}`}
         set={({ vars }, { event }) => ({
           ...vars,
-          answerSlot: Number(event.text),
+          answerSlot: event.type === 'text' ? Number(event.text) : undefined,
         })}
       />
     </WHILE>
 
-    <VARS
-      set={({ vars }: SetUpCircs) => ({
+    <VARS<SetUpVars>
+      set={({ vars }) => ({
         ...vars,
         settings: {
           ...vars.settings,
@@ -57,17 +54,22 @@ const ASKING = (field: string, words: string) => (
   </>
 );
 
-export default build<SetUpVars, AppEventContext, SetUpReturn, void>(
-  'SetUp',
+export default build<SetUpData, SetUpVars, AppEventContext, SetUpData>(
+  {
+    name: 'SetUp',
+    initVars: (input) => ({ settings: input.settings, answerSlot: undefined }),
+  },
   <>
-    {ASKING('pomodoroTime', 'Enter per pomodoro time in minute:')}
-    {ASKING('shortBreakTime', 'Enter short break time in minute:')}
+    {ASKING('workingMins', 'Enter per pomodoro time in minute:')}
+    {ASKING('shortBreakMins', 'Enter short break time in minute:')}
     {ASKING(
-      'longBreakTime',
+      'longBreakMins',
       'Enter long break (every 4 pomodoro) time in minute:'
     )}
     {ASKING('pomodoroPerDay', 'Enter pomodoro number a day:')}
 
-    <RETURN value={({ vars }: SetUpCircs) => vars.settings} />
+    <RETURN<SetUpVars, SetUpData>
+      value={({ vars }) => ({ settings: vars.settings })}
+    />
   </>
 );

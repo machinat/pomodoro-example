@@ -19,11 +19,11 @@ module.exports = {
     'prettier/standard',
   ],
   rules: {
-    strict: 0,
-    'no-nested-ternary': 0,
-    'no-underscore-dangle': 0,
-    'no-cond-assign': 0,
-    'no-unused-expressions': 0,
+    strict: 'off',
+    'no-nested-ternary': 'off',
+    'no-underscore-dangle': 'off',
+    'no-cond-assign': 'off',
+    'no-unused-expressions': 'off',
     'no-param-reassign': ['error', {
       props: true,
       ignorePropertyModificationsFor: ['frame'],
@@ -34,12 +34,14 @@ module.exports = {
     'lines-between-class-members': ['error',
       'always', { exceptAfterSingleLine: true }
     ],
-    'no-use-before-define': 0,
+    'no-shadow': 'off',
+    'no-use-before-define': 'off',
     '@typescript-eslint/no-use-before-define': ['error'],
-    'import/extensions': 0,
-    'import/no-unresolved': 0,
-    'react/jsx-key': 0,
-    'react/prop-types': 0,
+    '@typescript-eslint/no-shadow': ['error'],
+    'import/extensions': 'off',
+    'import/no-unresolved': 'off',
+    'react/jsx-key': 'off',
+    'react/prop-types': 'off',
     'react/no-unescaped-entities': ['error', {
       forbid: ['<', '>', '{', '}']
     }],
@@ -48,7 +50,7 @@ module.exports = {
     {
       files: '**/__{tests,fixtures,mocks}__/*',
       rules: {
-        'import/no-extraneous-dependencies': 0
+        'import/no-extraneous-dependencies': 'off'
       }
     }
   ],

@@ -1,8 +1,5 @@
 export const ACTION_MESSENGER_GETTING_START = 'messenger_getting_start';
 
-/** Go for next step */
-export const ACTION_GO = 'go';
-
 /** Start timing */
 export const ACTION_START = 'start';
 
@@ -24,8 +21,14 @@ export const ACTION_SET_UP = 'set_up';
 /** About this app */
 export const ACTION_ABOUT = 'about';
 
-export const INTENT_OK = 'ok';
+export const ACTION_OK = 'ok';
 
-export const INTENT_NO = 'no';
+export const ACTION_NO = 'no';
 
-export const INTENT_UNKNOWN = 'unknown';
+export const ACTION_UNKNOWN = 'unknown';
+
+export enum TimingStatus {
+  Working,
+  ShortBreak,
+  LongBreak,
+}

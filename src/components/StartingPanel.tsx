@@ -10,7 +10,7 @@ type StartingPanelProps = {
 const StartingPanel = ({ children }: StartingPanelProps, { platform }) => {
   return (
     <OneButtonPanel
-      text="Start"
+      text="Start ▶️ "
       action={ACTION_START}
       makeLineAltText={(template) =>
         `${template.text}\n\nTell me to "Start" when you ar ready`

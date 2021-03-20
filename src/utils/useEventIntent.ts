@@ -4,20 +4,11 @@ import { MessengerEvent } from '@machinat/messenger/types';
 import { TelegramEvent } from '@machinat/telegram/types';
 import { LineEvent } from '@machinat/line/types';
 import decodePostbackData from '../utils/decodePostbackData';
-import {
-  ACTION_TIME_UP,
-  INTENT_OK,
-  INTENT_NO,
-  INTENT_UNKNOWN,
-} from '../constant';
+import { ACTION_TIME_UP, ACTION_UNKNOWN } from '../constant';
 import { AppActionType, TimeUpEvent } from '../types';
 
 type EventIntent = {
-  type:
-    | AppActionType
-    | typeof INTENT_OK
-    | typeof INTENT_NO
-    | typeof INTENT_UNKNOWN;
+  type: AppActionType;
   confidence: number;
   payload: any;
 };
@@ -39,7 +30,7 @@ const useEventIntent = (recognizer: DialogFlow.IntentRecognizer) => async (
       event.text
     );
     return {
-      type: (type as AppActionType) || INTENT_UNKNOWN,
+      type: (type as AppActionType) || ACTION_UNKNOWN,
       confidence,
       payload,
     };
@@ -62,7 +53,7 @@ const useEventIntent = (recognizer: DialogFlow.IntentRecognizer) => async (
   }
 
   return {
-    type: INTENT_UNKNOWN,
+    type: ACTION_UNKNOWN,
     confidence: 0,
     payload: null,
   };

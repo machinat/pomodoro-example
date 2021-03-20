@@ -2,7 +2,7 @@ import Machinat from '@machinat/core';
 import * as Messenger from '@machinat/messenger/components';
 import * as Telegram from '@machinat/telegram/components';
 import * as Line from '@machinat/line/components';
-import { ACTION_GO, ACTION_SETTINGS, ACTION_ABOUT } from '../constant';
+import { ACTION_OK, ACTION_SETTINGS, ACTION_ABOUT } from '../constant';
 
 const WhatToDoExpression = ({ children }, { platform }) => {
   switch (platform) {
@@ -11,7 +11,7 @@ const WhatToDoExpression = ({ children }, { platform }) => {
         <Messenger.Expression
           quickReplies={
             <>
-              <Messenger.QuickReply title="Start" payload={ACTION_GO} />
+              <Messenger.QuickReply title="Continue" payload={ACTION_OK} />
               <Messenger.QuickReply
                 title="Change Settings"
                 payload={ACTION_SETTINGS}
@@ -32,7 +32,7 @@ const WhatToDoExpression = ({ children }, { platform }) => {
         <Telegram.Expression
           replyMarkup={
             <Telegram.InlineKeyboard>
-              <Telegram.CallbackButton text="Start" data={ACTION_GO} />
+              <Telegram.CallbackButton text="Continue" data={ACTION_OK} />
               <Telegram.CallbackButton
                 text="Change Settings"
                 data={ACTION_SETTINGS}
@@ -54,7 +54,7 @@ const WhatToDoExpression = ({ children }, { platform }) => {
           quickReplies={
             <>
               <Line.QuickReply>
-                <Line.PostbackAction displayText="Start" data={ACTION_GO} />
+                <Line.PostbackAction displayText="Continue" data={ACTION_OK} />
                 <Line.PostbackAction
                   displayText="Change Settings"
                   data={ACTION_SETTINGS}

@@ -11,84 +11,88 @@ import {
   CALL,
   RETURN,
 } from '@machinat/script/keywords';
-import type { ScriptCircs } from '@machinat/script/types';
 import SettingsPanel from '../components/SettingsPanel';
 import About from '../components/About';
 import StartingPanel from '../components/StartingPanel';
 
 import useEventIntent from '../utils/useEventIntent';
+import formatTime from '../utils/formatTime';
 import {
-  ACTION_GO,
   ACTION_ABOUT,
   ACTION_START,
   ACTION_SETTINGS,
   ACTION_SET_UP,
   ACTION_STOP,
   ACTION_PAUSE,
-  INTENT_OK,
-  INTENT_NO,
-  INTENT_UNKNOWN,
+  ACTION_OK,
+  TimingStatus,
 } from '../constant';
 import type {
   PomodoroSettings,
   AppActionType,
   AppEventContext,
 } from '../types';
-import SetUp, { SetUpReturn } from './SetUp';
+import SetUp, { SetUpData } from './SetUp';
 
-export type StartingVars = {
-  isResting: boolean;
+export type StartingParams = {
+  settings: PomodoroSettings;
+  timingStatus: TimingStatus;
   remainingTime?: number;
-  count: number;
-  settings: PomodoroSettings;
-  action?: AppActionType;
+  pomodoroNum: number;
 };
 
-type StartingCircs = ScriptCircs<StartingVars>;
-
-export type StartingReturn = {
-  settings: PomodoroSettings;
+export type StartingVars = StartingParams & {
+  action: AppActionType;
 };
 
-const Starting = build<StartingVars, AppEventContext, StartingReturn, void>(
-  'Starting',
+export default build<StartingParams, StartingVars, AppEventContext, SetUpData>(
+  {
+    name: 'Starting',
+    initVars: (params) => ({ ...params, action: ACTION_OK }),
+  },
   <>
-    <WHILE
-      condition={({ vars: { action } }: StartingCircs) =>
-        action !== ACTION_START
-      }
+    <WHILE<StartingVars>
+      condition={({ vars: { action } }) => action !== ACTION_START}
     >
-      <IF
-        condition={({ vars }: StartingCircs) => vars.action === ACTION_SET_UP}
-      >
+      <IF<StartingVars> condition={({ vars }) => vars.action === ACTION_SET_UP}>
         <THEN>
-          <CALL
-            script={SetUp}
-            withVars={({ vars: { settings } }: StartingCircs) => ({
-              settings,
-            })}
-            set={({ vars }: StartingCircs, { settings }: SetUpReturn) => ({
-              ...vars,
-              settings,
-            })}
+          <CALL<StartingVars, typeof SetUp>
             key="setting-up"
+            script={SetUp}
+            params={({ vars: { settings } }) => ({ settings })}
+            set={({ vars }, { settings }) => ({ ...vars, settings })}
           />
 
-          <VARS
-            set={({ vars }: StartingCircs) => ({
-              ...vars,
-              actions: ACTION_GO,
-            })}
+          <VARS<StartingVars>
+            set={({ vars }) => ({ ...vars, actions: ACTION_OK })}
           />
         </THEN>
       </IF>
 
-      {({ vars: { action, settings, count } }: StartingCircs) => {
+      {({
+        vars: { action, settings, pomodoroNum, timingStatus, remainingTime },
+      }) => {
         switch (action) {
-          case ACTION_GO:
-            return (
+          case ACTION_OK:
+            return remainingTime ? (
               <StartingPanel>
-                Start your {ordinal(count)} Pomodoro 🍅 today.
+                Continue{' '}
+                {timingStatus === TimingStatus.Working
+                  ? `${ordinal(pomodoroNum)} 🍅`
+                  : 'break time'}
+                , {formatTime(remainingTime)} remaining.
+              </StartingPanel>
+            ) : timingStatus === TimingStatus.Working ? (
+              <StartingPanel>
+                Start your {ordinal(pomodoroNum)} 🍅 today.
+              </StartingPanel>
+            ) : (
+              <StartingPanel>
+                Take a{' '}
+                {timingStatus === TimingStatus.LongBreak
+                  ? settings.longBreakMins
+                  : settings.shortBreakMins}{' '}
+                min break.
               </StartingPanel>
             );
           case ACTION_ABOUT:
@@ -103,23 +107,18 @@ const Starting = build<StartingVars, AppEventContext, StartingReturn, void>(
         }
       }}
 
-      <PROMPT
+      <PROMPT<StartingVars, AppEventContext>
         key="wait-start"
         set={makeContainer({ deps: [useEventIntent] })(
-          (getIntent) => async (
-            { vars }: StartingCircs,
-            { event }: AppEventContext
-          ): Promise<StartingVars> => {
+          (getIntent) => async ({ vars }, { event }) => {
             const { type: intentType } = await getIntent(event);
             return {
               ...vars,
               action:
-                intentType === INTENT_NO || intentType === INTENT_UNKNOWN
-                  ? undefined
-                  : intentType === INTENT_OK || intentType === ACTION_GO
-                  ? vars.action === ACTION_GO
+                intentType === ACTION_OK
+                  ? vars.action === ACTION_OK
                     ? ACTION_START
-                    : ACTION_GO
+                    : ACTION_OK
                   : intentType,
             };
           }
@@ -127,8 +126,8 @@ const Starting = build<StartingVars, AppEventContext, StartingReturn, void>(
       />
     </WHILE>
 
-    <RETURN value={({ vars: { settings } }: StartingCircs) => ({ settings })} />
+    <RETURN<StartingVars, SetUpData>
+      value={({ vars: { settings } }) => ({ settings })}
+    />
   </>
 );
-
-export default Starting;

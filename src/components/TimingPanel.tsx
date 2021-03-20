@@ -20,8 +20,11 @@ const TimingPanel = ({ children }: TimingPanelProps, { platform }) => {
         <Messenger.ButtonTemplate
           buttons={
             <>
-              <Messenger.PostbackButton title="Pause" payload={actionPause} />
-              <Messenger.PostbackButton title="Stop" payload={actionStop} />
+              <Messenger.PostbackButton
+                title="Pause ⏸️"
+                payload={actionPause}
+              />
+              <Messenger.PostbackButton title="Stop ⏹" payload={actionStop} />
             </>
           }
         >
@@ -34,8 +37,8 @@ const TimingPanel = ({ children }: TimingPanelProps, { platform }) => {
         <Telegram.Text
           replyMarkup={
             <Telegram.InlineKeyboard>
-              <Telegram.ReplyButton text="Pause" />
-              <Telegram.ReplyButton text="Stop" />
+              <Telegram.ReplyButton text="Pause ⏸️" />
+              <Telegram.ReplyButton text="Stop ⏹" />
             </Telegram.InlineKeyboard>
           }
         >
@@ -51,8 +54,8 @@ const TimingPanel = ({ children }: TimingPanelProps, { platform }) => {
           }
           actions={
             <>
-              <Line.PostbackAction displayText="Pause" data={actionPause} />
-              <Line.PostbackAction displayText="Stop" data={actionStop} />
+              <Line.PostbackAction displayText="Pause ⏸️" data={actionPause} />
+              <Line.PostbackAction displayText="Stop ⏹" data={actionStop} />
             </>
           }
         >

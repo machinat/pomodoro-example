@@ -9,7 +9,6 @@ import type {
 } from '@machinat/telegram/types';
 import type { LineChat, LineEventContext } from '@machinat/line/types';
 import {
-  ACTION_GO,
   ACTION_ABOUT,
   ACTION_SETTINGS,
   ACTION_SET_UP,
@@ -17,24 +16,29 @@ import {
   ACTION_STOP,
   ACTION_PAUSE,
   ACTION_TIME_UP,
+  ACTION_OK,
+  ACTION_NO,
+  ACTION_UNKNOWN,
 } from './constant';
 
 export type PomodoroSettings = {
-  pomodoroTime: number;
-  shortBreakTime: number;
-  longBreakTime: number;
+  workingMins: number;
+  shortBreakMins: number;
+  longBreakMins: number;
   pomodoroPerDay: number;
 };
 
 export type AppActionType =
-  | typeof ACTION_GO
   | typeof ACTION_START
   | typeof ACTION_STOP
   | typeof ACTION_PAUSE
   | typeof ACTION_TIME_UP
   | typeof ACTION_ABOUT
   | typeof ACTION_SETTINGS
-  | typeof ACTION_SET_UP;
+  | typeof ACTION_SET_UP
+  | typeof ACTION_OK
+  | typeof ACTION_NO
+  | typeof ACTION_UNKNOWN;
 
 export type AppChannel = MessengerChat | TelegramChat | LineChat;
 

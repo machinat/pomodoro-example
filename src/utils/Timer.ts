@@ -86,6 +86,8 @@ export class Timer {
     for (const listener of this._listeners) {
       listener(targets);
     }
+
+    await minuteState.clear();
   }
 }
 

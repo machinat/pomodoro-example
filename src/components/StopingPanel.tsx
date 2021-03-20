@@ -1,6 +1,6 @@
 import Machinat from '@machinat/core';
 import { MachinatNode } from '@machinat/core/types';
-import { ACTION_START } from '../constant';
+import { ACTION_OK } from '../constant';
 import OneButtonPanel from './OneButtonPanel';
 
 type StopingPanelProps = {
@@ -10,8 +10,8 @@ type StopingPanelProps = {
 const StopingPanel = ({ children }: StopingPanelProps, { platform }) => {
   return (
     <OneButtonPanel
-      text="Stop"
-      action={ACTION_START}
+      text="Yes"
+      action={ACTION_OK}
       makeLineAltText={(template) => template.text as string}
     >
       {children}
