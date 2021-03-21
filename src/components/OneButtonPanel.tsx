@@ -24,9 +24,7 @@ const OneButtonPanel = (
       return (
         <Messenger.ButtonTemplate
           buttons={
-            <>
-              <Messenger.PostbackButton title={text} payload={actionData} />
-            </>
+            <Messenger.PostbackButton title={text} payload={actionData} />
           }
         >
           {children}
@@ -38,7 +36,7 @@ const OneButtonPanel = (
         <Telegram.Text
           replyMarkup={
             <Telegram.InlineKeyboard>
-              <Telegram.ReplyButton text="Start" />
+              <Telegram.CallbackButton text={text} data={actionData} />
             </Telegram.InlineKeyboard>
           }
         >
@@ -51,9 +49,11 @@ const OneButtonPanel = (
         <Line.ButtonTemplate
           altText={makeLineAltText}
           actions={
-            <>
-              <Line.PostbackAction displayText="Start" data={actionData} />
-            </>
+            <Line.PostbackAction
+              label={text}
+              displayText={text}
+              data={actionData}
+            />
           }
         >
           {children}

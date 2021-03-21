@@ -16,6 +16,7 @@ const SettingsPanel = ({ settings }: SettingsPanelProps, { platform }) => {
 - Short Break Time: ${settings.shortBreakMins} min
 - Long Break Time: ${settings.longBreakMins} min
 - Pomodoro per Day: ${settings.pomodoroPerDay}
+- Timezone: ${settings.timezone >= 0 ? '+' : ''}${settings.timezone}
 `;
 
   const setupAction = encodePostbackData({ action: ACTION_SET_UP });
@@ -41,8 +42,8 @@ const SettingsPanel = ({ settings }: SettingsPanelProps, { platform }) => {
         <Telegram.Text
           replyMarkup={
             <Telegram.InlineKeyboard>
-              <Telegram.ReplyButton text="Edit" />
-              <Telegram.ReplyButton text="Ok" />
+              <Telegram.CallbackButton text="Edit" data={setupAction} />
+              <Telegram.CallbackButton text="Ok" data={okAction} />
             </Telegram.InlineKeyboard>
           }
         >
@@ -56,8 +57,16 @@ const SettingsPanel = ({ settings }: SettingsPanelProps, { platform }) => {
           altText={currentSettingsWords}
           actions={
             <>
-              <Line.PostbackAction displayText="Edit" data={setupAction} />
-              <Line.PostbackAction displayText="Ok" data={okAction} />
+              <Line.PostbackAction
+                label="Edit"
+                displayText="Edit"
+                data={setupAction}
+              />
+              <Line.PostbackAction
+                label="Ok"
+                displayText="Ok"
+                data={okAction}
+              />
             </>
           }
         >

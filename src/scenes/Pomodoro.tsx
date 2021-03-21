@@ -12,6 +12,7 @@ import {
 } from '@machinat/script/keywords';
 import SettingsPanel from '../components/SettingsPanel';
 import useEventIntent from '../utils/useEventIntent';
+import currentDayId from '../utils/currentDayId';
 import Timer from '../utils/Timer';
 import { ACTION_OK, ACTION_SET_UP, TimingStatus } from '../constant';
 import type {
@@ -24,30 +25,37 @@ import Starting from './Starting';
 import Timing from './Timing';
 import SetUp from './SetUp';
 
+type PomodoroParams = {
+  timezone?: number;
+};
+
 type PomodoroVars = {
   settings: PomodoroSettings;
   pomodoroNum: number;
-  remainingTime: undefined | number;
   timingStatus: TimingStatus;
   action: AppActionType;
+  dayId: string;
+  remainingTime: undefined | number;
   timingDueAt: Date;
 };
 
-export default build<void, PomodoroVars, AppEventContext, void, void>(
+export default build<PomodoroParams, PomodoroVars, AppEventContext, void, void>(
   {
     name: 'Pomodoro',
-    initVars: () => ({
+    initVars: ({ timezone }) => ({
       settings: {
         workingMins: 25,
         shortBreakMins: 5,
         longBreakMins: 30,
         pomodoroPerDay: 12,
+        timezone: timezone || 0,
       },
       pomodoroNum: 1,
       action: ACTION_OK,
       remainingTime: undefined,
       timingStatus: TimingStatus.Working,
       timingDueAt: new Date(0),
+      dayId: currentDayId(0),
     }),
   },
   <$<PomodoroVars>>
@@ -76,7 +84,11 @@ export default build<void, PomodoroVars, AppEventContext, void, void>(
         <CALL<PomodoroVars, typeof SetUp>
           script={SetUp}
           params={({ vars: { settings } }) => ({ settings })}
-          set={({ vars }, { settings }) => ({ ...vars, settings })}
+          set={({ vars }, { settings }) => ({
+            ...vars,
+            settings,
+            dayId: currentDayId(settings.timezone),
+          })}
           key="initial-setup"
         />
       </THEN>
@@ -90,19 +102,32 @@ export default build<void, PomodoroVars, AppEventContext, void, void>(
         script={Starting}
         key="wait-starting"
         params={({ vars }) => ({ ...vars })}
-        set={({ vars }, { settings }) => ({
-          ...vars,
-          settings,
-          timingDueAt: new Date(
-            Date.now() +
-              (vars.timingStatus === TimingStatus.Working
-                ? settings.workingMins
-                : vars.timingStatus === TimingStatus.LongBreak
-                ? settings.longBreakMins
-                : settings.shortBreakMins) *
-                60000
-          ),
-        })}
+        set={({ vars }, { settings, isDayChanged }) => {
+          if (isDayChanged) {
+            return {
+              ...vars,
+              settings,
+              dayId: currentDayId(settings.timezone),
+              pomodoroNum: 1,
+              timingStatus: TimingStatus.Working,
+              remainingTime: undefined,
+            };
+          }
+
+          return {
+            ...vars,
+            settings,
+            timingDueAt: new Date(
+              Date.now() +
+                (vars.timingStatus === TimingStatus.Working
+                  ? settings.workingMins
+                  : vars.timingStatus === TimingStatus.LongBreak
+                  ? settings.longBreakMins
+                  : settings.shortBreakMins) *
+                  60000
+            ),
+          };
+        }}
       />
 
       <EFFECT<PomodoroVars>
@@ -115,6 +140,7 @@ export default build<void, PomodoroVars, AppEventContext, void, void>(
 
       <CALL<PomodoroVars, typeof Timing>
         script={Timing}
+        key="wait-timing"
         params={({ vars }) => ({
           ...vars,
           time: vars.remainingTime || vars.settings.workingMins * 60000,
@@ -140,7 +166,6 @@ export default build<void, PomodoroVars, AppEventContext, void, void>(
               : TimingStatus.Working,
           };
         }}
-        key="wait-timing"
       />
 
       <EFFECT<PomodoroVars>

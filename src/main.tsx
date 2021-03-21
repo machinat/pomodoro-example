@@ -1,10 +1,12 @@
 import Machinat from '@machinat/core';
 import { makeContainer, ServiceScope } from '@machinat/core/service';
 import BaseBot from '@machinat/core/base/Bot';
-import { MarkSeen } from '@machinat/messenger/components';
 import Script from '@machinat/script';
 import { fromApp, merge, Subject } from '@machinat/stream';
 import { filter, tap } from '@machinat/stream/operators';
+import Messenger from '@machinat/messenger';
+import { MarkSeen } from '@machinat/messenger/components';
+import { AnswerCallbackQuery } from '@machinat/telegram/components';
 
 import Timer from './utils/Timer';
 import Pomodoro from './scenes/Pomodoro';
@@ -44,17 +46,29 @@ const main = (app: typeof App): void => {
   const events$ = merge(fromApp(app), timerSubject);
 
   events$.pipe(
-    tap(
-      makeContainer({ deps: [Machinat.Bot, Script.Processor] as const })(
-        (bot, scriptProcessor) => async (context) => {
-          const { channel } = context.event;
+    tap<AppEventContext>(
+      makeContainer({
+        deps: [Machinat.Bot, Script.Processor, Messenger.Profiler] as const,
+      })(
+        (bot, scriptProcessor, messengerProfiler) => async (
+          context: AppEventContext
+        ) => {
+          const { event } = context;
+          const { channel } = event;
           if (!channel) {
             return;
           }
 
+          let timezone: undefined | number;
+          if (event.platform === 'messenger' && event.user) {
+            ({ timezone } = await messengerProfiler.getUserProfile(event.user));
+          }
+
           let runtime = await scriptProcessor.continue(channel, context);
           if (!runtime) {
-            runtime = await scriptProcessor.start(channel, Pomodoro);
+            runtime = await scriptProcessor.start(channel, Pomodoro, {
+              params: { timezone },
+            });
           }
 
           await bot.render(channel, runtime.output());
@@ -67,6 +81,19 @@ const main = (app: typeof App): void => {
     filter(({ platform }) => platform === 'messenger'),
     tap(async ({ bot, event: { channel } }) => {
       await bot.render(channel, <MarkSeen />);
+    })
+  );
+
+  events$.pipe(
+    filter(
+      ({ platform, event }) =>
+        event.platform === 'telegram' && event.type === 'callback_query'
+    ),
+    tap(async ({ bot, event }) => {
+      await bot.render(
+        event.channel,
+        <AnswerCallbackQuery queryId={event.queryId} />
+      );
     })
   );
 };

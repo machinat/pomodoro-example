@@ -26,6 +26,7 @@ export type PomodoroSettings = {
   shortBreakMins: number;
   longBreakMins: number;
   pomodoroPerDay: number;
+  timezone: number;
 };
 
 export type AppActionType =

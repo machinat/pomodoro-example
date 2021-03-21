@@ -17,6 +17,7 @@ import StartingPanel from '../components/StartingPanel';
 
 import useEventIntent from '../utils/useEventIntent';
 import formatTime from '../utils/formatTime';
+import currentDayId from '../utils/currentDayId';
 import {
   ACTION_ABOUT,
   ACTION_START,
@@ -32,23 +33,62 @@ import type {
   AppActionType,
   AppEventContext,
 } from '../types';
-import SetUp, { SetUpData } from './SetUp';
+import SetUp from './SetUp';
 
 export type StartingParams = {
   settings: PomodoroSettings;
   timingStatus: TimingStatus;
   remainingTime?: number;
   pomodoroNum: number;
+  dayId: string;
 };
 
 export type StartingVars = StartingParams & {
   action: AppActionType;
+  isDayChanged: boolean;
 };
 
-export default build<StartingParams, StartingVars, AppEventContext, SetUpData>(
+export type StartingReturn = {
+  settings: PomodoroSettings;
+  isDayChanged: boolean;
+};
+
+const CHECK_DAY_CHANGE = () => (
+  <VARS<StartingVars>
+    set={({ vars }) => {
+      const dayId = currentDayId(vars.settings.timezone);
+
+      const isDayChanged = dayId !== vars.dayId;
+      if (!isDayChanged) {
+        return vars;
+      }
+
+      return {
+        ...vars,
+        dayId,
+        isDayChanged: true,
+        action: ACTION_OK,
+        pomodoroNum: 1,
+        timingStatus: TimingStatus.Working,
+        remainingTime: undefined,
+      };
+    }}
+  />
+);
+
+export default build<
+  StartingParams,
+  StartingVars,
+  AppEventContext,
+  StartingReturn
+>(
   {
     name: 'Starting',
-    initVars: (params) => ({ ...params, action: ACTION_OK }),
+    initVars: (params) => ({
+      ...params,
+      action: ACTION_OK,
+      isDayChanged: false,
+    }),
   },
   <>
     <WHILE<StartingVars>
@@ -60,14 +100,16 @@ export default build<StartingParams, StartingVars, AppEventContext, SetUpData>(
             key="setting-up"
             script={SetUp}
             params={({ vars: { settings } }) => ({ settings })}
-            set={({ vars }, { settings }) => ({ ...vars, settings })}
-          />
-
-          <VARS<StartingVars>
-            set={({ vars }) => ({ ...vars, actions: ACTION_OK })}
+            set={({ vars }, { settings }) => ({
+              ...vars,
+              settings,
+              action: ACTION_OK,
+            })}
           />
         </THEN>
       </IF>
+
+      {CHECK_DAY_CHANGE()}
 
       {({
         vars: { action, settings, pomodoroNum, timingStatus, remainingTime },
@@ -112,6 +154,7 @@ export default build<StartingParams, StartingVars, AppEventContext, SetUpData>(
         set={makeContainer({ deps: [useEventIntent] })(
           (getIntent) => async ({ vars }, { event }) => {
             const { type: intentType } = await getIntent(event);
+
             return {
               ...vars,
               action:
@@ -124,10 +167,15 @@ export default build<StartingParams, StartingVars, AppEventContext, SetUpData>(
           }
         )}
       />
+
+      {CHECK_DAY_CHANGE()}
     </WHILE>
 
-    <RETURN<StartingVars, SetUpData>
-      value={({ vars: { settings } }) => ({ settings })}
+    <RETURN<StartingVars, StartingReturn>
+      value={({ vars: { settings, isDayChanged } }) => ({
+        settings,
+        isDayChanged,
+      })}
     />
   </>
 );

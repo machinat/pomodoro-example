@@ -96,6 +96,7 @@ const app = Machinat.createApp({
       appSecret: MESSENGER_APP_SECRET,
       accessToken: MESSENGER_ACCESS_TOKEN,
       verifyToken: MESSENGER_VERIFY_TOKEN,
+      optionalProfileFields: ['timezone'],
       dispatchMiddlewares: [saveReusableAttachments],
     }),
 

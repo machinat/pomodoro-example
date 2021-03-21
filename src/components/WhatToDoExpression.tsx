@@ -4,6 +4,10 @@ import * as Telegram from '@machinat/telegram/components';
 import * as Line from '@machinat/line/components';
 import { ACTION_OK, ACTION_SETTINGS, ACTION_ABOUT } from '../constant';
 
+const CONTINUE = 'Continue';
+const CHANGE_SETTINGS = 'Change Settings';
+const WHATS_THIS = "What's this?";
+
 const WhatToDoExpression = ({ children }, { platform }) => {
   switch (platform) {
     case 'messenger':
@@ -11,15 +15,12 @@ const WhatToDoExpression = ({ children }, { platform }) => {
         <Messenger.Expression
           quickReplies={
             <>
-              <Messenger.QuickReply title="Continue" payload={ACTION_OK} />
+              <Messenger.QuickReply title={CONTINUE} payload={ACTION_OK} />
               <Messenger.QuickReply
-                title="Change Settings"
+                title={CHANGE_SETTINGS}
                 payload={ACTION_SETTINGS}
               />
-              <Messenger.QuickReply
-                title="What's this?"
-                payload={ACTION_ABOUT}
-              />
+              <Messenger.QuickReply title={WHATS_THIS} payload={ACTION_ABOUT} />
             </>
           }
         >
@@ -32,15 +33,12 @@ const WhatToDoExpression = ({ children }, { platform }) => {
         <Telegram.Expression
           replyMarkup={
             <Telegram.InlineKeyboard>
-              <Telegram.CallbackButton text="Continue" data={ACTION_OK} />
+              <Telegram.CallbackButton text={CONTINUE} data={ACTION_OK} />
               <Telegram.CallbackButton
-                text="Change Settings"
+                text={CHANGE_SETTINGS}
                 data={ACTION_SETTINGS}
               />
-              <Telegram.CallbackButton
-                text="What's this?"
-                data={ACTION_ABOUT}
-              />
+              <Telegram.CallbackButton text={WHATS_THIS} data={ACTION_ABOUT} />
             </Telegram.InlineKeyboard>
           }
         >
@@ -54,13 +52,19 @@ const WhatToDoExpression = ({ children }, { platform }) => {
           quickReplies={
             <>
               <Line.QuickReply>
-                <Line.PostbackAction displayText="Continue" data={ACTION_OK} />
                 <Line.PostbackAction
-                  displayText="Change Settings"
+                  label={CONTINUE}
+                  displayText={CONTINUE}
+                  data={ACTION_OK}
+                />
+                <Line.PostbackAction
+                  label={CHANGE_SETTINGS}
+                  displayText={CHANGE_SETTINGS}
                   data={ACTION_SETTINGS}
                 />
                 <Line.PostbackAction
-                  displayText="What's this?"
+                  label={WHATS_THIS}
+                  displayText={WHATS_THIS}
                   data={ACTION_ABOUT}
                 />
               </Line.QuickReply>

@@ -10,6 +10,9 @@ type TimingPanelProps = {
   children: MachinatNode;
 };
 
+const STOP = 'Stop ⏹';
+const PAUSE = 'Pause ⏸️';
+
 const TimingPanel = ({ children }: TimingPanelProps, { platform }) => {
   const actionPause = encodePostbackData({ action: ACTION_PAUSE });
   const actionStop = encodePostbackData({ action: ACTION_STOP });
@@ -20,11 +23,8 @@ const TimingPanel = ({ children }: TimingPanelProps, { platform }) => {
         <Messenger.ButtonTemplate
           buttons={
             <>
-              <Messenger.PostbackButton
-                title="Pause ⏸️"
-                payload={actionPause}
-              />
-              <Messenger.PostbackButton title="Stop ⏹" payload={actionStop} />
+              <Messenger.PostbackButton title={PAUSE} payload={actionPause} />
+              <Messenger.PostbackButton title={STOP} payload={actionStop} />
             </>
           }
         >
@@ -37,8 +37,8 @@ const TimingPanel = ({ children }: TimingPanelProps, { platform }) => {
         <Telegram.Text
           replyMarkup={
             <Telegram.InlineKeyboard>
-              <Telegram.ReplyButton text="Pause ⏸️" />
-              <Telegram.ReplyButton text="Stop ⏹" />
+              <Telegram.CallbackButton text={PAUSE} data={actionPause} />
+              <Telegram.CallbackButton text={STOP} data={actionStop} />
             </Telegram.InlineKeyboard>
           }
         >
@@ -54,8 +54,12 @@ const TimingPanel = ({ children }: TimingPanelProps, { platform }) => {
           }
           actions={
             <>
-              <Line.PostbackAction displayText="Pause ⏸️" data={actionPause} />
-              <Line.PostbackAction displayText="Stop ⏹" data={actionStop} />
+              <Line.PostbackAction label={PAUSE} data={actionPause} />
+              <Line.PostbackAction
+                label={STOP}
+                displayText={STOP}
+                data={actionStop}
+              />
             </>
           }
         >
