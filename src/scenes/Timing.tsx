@@ -36,20 +36,20 @@ import type {
 } from '../types';
 import SetUp from './SetUp';
 
-export type TimingParams = {
+type TimingParams = {
   time: number;
   pomodoroNum: number;
   settings: PomodoroSettings;
   timingStatus: TimingStatus;
 };
 
-export type TimingVars = TimingParams & {
+type TimingVars = TimingParams & {
   beginAt: Date;
   pauseAt: null | Date;
   action: AppActionType;
 };
 
-export type TimingReturn = {
+type TimingReturn = {
   settings: PomodoroSettings;
   remainingTime: undefined | number;
 };

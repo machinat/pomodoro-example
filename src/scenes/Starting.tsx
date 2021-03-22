@@ -35,7 +35,7 @@ import type {
 } from '../types';
 import SetUp from './SetUp';
 
-export type StartingParams = {
+type StartingParams = {
   settings: PomodoroSettings;
   timingStatus: TimingStatus;
   remainingTime?: number;
@@ -43,12 +43,12 @@ export type StartingParams = {
   dayId: string;
 };
 
-export type StartingVars = StartingParams & {
+type StartingVars = StartingParams & {
   action: AppActionType;
   isDayChanged: boolean;
 };
 
-export type StartingReturn = {
+type StartingReturn = {
   settings: PomodoroSettings;
   isDayChanged: boolean;
 };

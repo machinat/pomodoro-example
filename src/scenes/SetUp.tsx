@@ -8,11 +8,12 @@ import {
   PROMPT,
   RETURN,
   VARS,
+  CALL,
 } from '@machinat/script/keywords';
-import RequestLocationIfPossible from '../components/RequestLocationIfPossible';
+import AskingTimezone from './AskingTimezone';
 import type { PomodoroSettings, AppEventContext } from '../types';
 
-export type SetUpVars = {
+type SetUpVars = {
   settings: PomodoroSettings;
   answerSlot: undefined | number;
 };
@@ -38,7 +39,12 @@ const ASKING = (field: keyof PomodoroSettings, words: string) => (
         key={`ask-${field}`}
         set={({ vars }, { event }) => ({
           ...vars,
-          answerSlot: event.type === 'text' ? Number(event.text) : undefined,
+          answerSlot:
+            event.type !== 'text'
+              ? undefined
+              : event.text.trim() === '-'
+              ? vars.settings[field]
+              : Number(event.text),
         })}
       />
     </WHILE>
@@ -62,6 +68,8 @@ export default build<SetUpData, SetUpVars, AppEventContext, SetUpData>(
     initVars: (input) => ({ settings: input.settings, answerSlot: undefined }),
   },
   <$>
+    {() => <p>You can send a "-" character to skip the option</p>}
+
     {ASKING('workingMins', 'Enter per pomodoro time in minute:')}
     {ASKING('shortBreakMins', 'Enter short break time in minute:')}
     {ASKING(
@@ -70,50 +78,13 @@ export default build<SetUpData, SetUpVars, AppEventContext, SetUpData>(
     )}
     {ASKING('pomodoroPerDay', 'Enter pomodoro target in one day:')}
 
-    {({ platform }) => {
-      const askingTz = 'Enter your timezone in number:';
-      const askingTzOrLocaction =
-        'Enter your timezone in number or send me your location:';
-
-      return (
-        <RequestLocationIfPossible makeLineAltText={() => askingTz}>
-          {platform === 'telegram' || platform === 'line'
-            ? askingTzOrLocaction
-            : askingTz}
-        </RequestLocationIfPossible>
-      );
-    }}
-
-    <WHILE<SetUpVars>
-      condition={({ vars: { answerSlot } }) =>
-        !answerSlot ||
-        !Number.isSafeInteger(answerSlot) ||
-        (answerSlot > 14 && answerSlot < -12)
-      }
-    >
-      <IF<SetUpVars> condition={({ vars }) => vars.answerSlot !== undefined}>
-        <THEN>{() => 'Please give me a valid timezone number'}</THEN>
-      </IF>
-
-      <PROMPT<SetUpVars, AppEventContext>
-        key="ask-timezone"
-        set={({ vars }, { event }) => ({
-          ...vars,
-          answerSlot:
-            event.type === 'location'
-              ? Math.floor(event.longitude / 15 + 0.5)
-              : event.type === 'text'
-              ? Number(event.text)
-              : undefined,
-        })}
-      />
-    </WHILE>
-
-    <VARS<SetUpVars>
-      set={({ vars }) => ({
+    <CALL<SetUpVars, typeof AskingTimezone>
+      script={AskingTimezone}
+      key="ask-timezone"
+      params={({ vars: { settings } }) => ({ timezone: settings.timezone })}
+      set={({ vars }, { timezone }) => ({
         ...vars,
-        settings: { ...vars.settings, timezone: vars.answerSlot as number },
-        answerSlot: undefined,
+        settings: { ...vars.settings, timezone },
       })}
     />
 

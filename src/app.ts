@@ -22,6 +22,7 @@ import Pomodoro from './scenes/Pomodoro';
 import SetUp from './scenes/SetUp';
 import Starting from './scenes/Starting';
 import Timing from './scenes/Timing';
+import AskingTimezone from './scenes/AskingTimezone';
 import useEventIntent from './utils/useEventIntent';
 import Timer from './utils/Timer';
 
@@ -72,7 +73,7 @@ const app = Machinat.createApp({
         }),
 
     Script.initModule({
-      libs: [Pomodoro, SetUp, Starting, Timing],
+      libs: [Pomodoro, SetUp, Starting, Timing, AskingTimezone],
     }),
 
     DialogFlow.initModule({

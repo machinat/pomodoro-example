@@ -11,6 +11,7 @@ import {
   EFFECT,
 } from '@machinat/script/keywords';
 import SettingsPanel from '../components/SettingsPanel';
+import Pause from '../components/Pause';
 import useEventIntent from '../utils/useEventIntent';
 import currentDayId from '../utils/currentDayId';
 import Timer from '../utils/Timer';
@@ -24,6 +25,7 @@ import type {
 import Starting from './Starting';
 import Timing from './Timing';
 import SetUp from './SetUp';
+import AskingTimezone from './AskingTimezone';
 
 type PomodoroParams = {
   timezone?: number;
@@ -59,15 +61,47 @@ export default build<PomodoroParams, PomodoroVars, AppEventContext, void, void>(
     }),
   },
   <$<PomodoroVars>>
+    {() => (
+      <>
+        Hi, I'm a Pomodoro Technique Bot 🤖💛🍅
+        <Pause />
+      </>
+    )}
+
+    <IF
+      condition={({ platform }) =>
+        platform === 'telegram' || platform === 'line'
+      }
+    >
+      <THEN>
+        {() => (
+          <>
+            I need to know which timezone your are in for counting 🍅
+            <Pause time={4000} />
+          </>
+        )}
+
+        <CALL<PomodoroVars, typeof AskingTimezone>
+          script={AskingTimezone}
+          key="ask-timezone"
+          params={({ vars: { settings } }) => ({ timezone: settings.timezone })}
+          set={({ vars }, { timezone }) => ({
+            ...vars,
+            settings: { ...vars.settings, timezone },
+          })}
+        />
+      </THEN>
+    </IF>
+
     {({ vars }) => (
       <>
-        Please confirm the settings for the first time.
+        Please confirm your settings for the first time
         <SettingsPanel settings={vars.settings} />
       </>
     )}
 
     <PROMPT<PomodoroVars, AppEventContext>
-      key="initial-settings"
+      key="confirm-settings"
       set={makeContainer({ deps: [useEventIntent] })(
         (getIntent) => async ({ vars }, { event }) => {
           const intent = await getIntent(event);
