@@ -4,7 +4,7 @@ import { MessengerEvent } from '@machinat/messenger/types';
 import { TelegramEvent } from '@machinat/telegram/types';
 import { LineEvent } from '@machinat/line/types';
 import decodePostbackData from '../utils/decodePostbackData';
-import { ACTION_TIME_UP, ACTION_UNKNOWN } from '../constant';
+import { ACTION_OK, ACTION_TIME_UP, ACTION_UNKNOWN } from '../constant';
 import { AppActionType, TimeUpEvent } from '../types';
 
 type EventIntent = {
@@ -25,6 +25,14 @@ const useEventIntent = (recognizer: DialogFlow.IntentRecognizer) => async (
   }
 
   if (event.type === 'text') {
+    if (event.text === '👍' || event.text === '👌') {
+      return {
+        type: ACTION_OK,
+        confidence: 1,
+        payload: null,
+      };
+    }
+
     const { type, confidence, payload } = await recognizer.detectText(
       event.channel,
       event.text
