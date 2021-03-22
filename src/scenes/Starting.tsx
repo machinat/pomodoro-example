@@ -124,11 +124,7 @@ export default build<
                   : 'break time'}
                 , {formatTime(remainingTime)} remaining.
               </StartingPanel>
-            ) : timingStatus === TimingStatus.Working ? (
-              <StartingPanel>
-                Start your {ordinal(pomodoroNum)} 🍅 today.
-              </StartingPanel>
-            ) : (
+            ) : timingStatus !== TimingStatus.Working ? (
               <StartingPanel>
                 Take a{' '}
                 {timingStatus === TimingStatus.LongBreak
@@ -136,7 +132,21 @@ export default build<
                   : settings.shortBreakMins}{' '}
                 min break.
               </StartingPanel>
+            ) : pomodoroNum <= settings.pomodoroPerDay ? (
+              <StartingPanel>
+                Start your{' '}
+                {pomodoroNum === settings.pomodoroPerDay
+                  ? 'last'
+                  : ordinal(pomodoroNum)}{' '}
+                🍅 today.
+              </StartingPanel>
+            ) : (
+              <StartingPanel>
+                You have already finish your {settings.pomodoroPerDay} 🍅 target
+                today. Keep on {ordinal(pomodoroNum)} 🍅?
+              </StartingPanel>
             );
+
           case ACTION_ABOUT:
             return <About />;
           case ACTION_SETTINGS:
