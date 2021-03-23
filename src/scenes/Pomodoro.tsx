@@ -38,7 +38,7 @@ type PomodoroVars = {
   action: AppActionType;
   dayId: string;
   remainingTime: undefined | number;
-  timingDueAt: Date;
+  registerTimerAt: Date;
 };
 
 export default build<PomodoroParams, PomodoroVars, AppEventContext, void, void>(
@@ -56,7 +56,7 @@ export default build<PomodoroParams, PomodoroVars, AppEventContext, void, void>(
       action: ACTION_OK,
       remainingTime: undefined,
       timingStatus: TimingStatus.Working,
-      timingDueAt: new Date(0),
+      registerTimerAt: new Date(0),
       dayId: currentDayId(0),
     }),
   },
@@ -145,13 +145,16 @@ export default build<PomodoroParams, PomodoroVars, AppEventContext, void, void>(
               pomodoroNum: 1,
               timingStatus: TimingStatus.Working,
               remainingTime: undefined,
+              registerTimerAt: new Date(
+                Date.now() + settings.workingMins * 60000
+              ),
             };
           }
 
           return {
             ...vars,
             settings,
-            timingDueAt: new Date(
+            registerTimerAt: new Date(
               Date.now() +
                 (vars.timingStatus === TimingStatus.Working
                   ? settings.workingMins
@@ -168,7 +171,7 @@ export default build<PomodoroParams, PomodoroVars, AppEventContext, void, void>(
         do={makeContainer({
           deps: [Timer],
         })((timer) => ({ vars, channel }) => () =>
-          timer.registerTimer(channel as AppChannel, vars.timingDueAt)
+          timer.registerTimer(channel as AppChannel, vars.registerTimerAt)
         )}
       />
 
@@ -206,7 +209,7 @@ export default build<PomodoroParams, PomodoroVars, AppEventContext, void, void>(
         do={makeContainer({
           deps: [Timer],
         })((timer) => ({ vars, channel }) => () =>
-          timer.cancelTimer(channel as AppChannel, vars.timingDueAt)
+          timer.cancelTimer(channel as AppChannel, vars.registerTimerAt)
         )}
       />
     </WHILE>
