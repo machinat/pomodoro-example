@@ -121,7 +121,7 @@ export default build<
                 Continue{' '}
                 {timingStatus === TimingStatus.Working
                   ? `${ordinal(pomodoroNum)} 🍅`
-                  : 'break time'}
+                  : 'break time ☕'}
                 , {formatTime(remainingTime)} remaining.
               </StartingPanel>
             ) : timingStatus !== TimingStatus.Working ? (
@@ -130,7 +130,7 @@ export default build<
                 {timingStatus === TimingStatus.LongBreak
                   ? settings.longBreakMins
                   : settings.shortBreakMins}{' '}
-                min break.
+                min break ☕
               </StartingPanel>
             ) : pomodoroNum <= settings.pomodoroPerDay ? (
               <StartingPanel>

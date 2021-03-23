@@ -92,7 +92,7 @@ export default build<TimingParams, TimingVars, AppEventContext, TimingReturn>(
               <TimingPanel>
                 {timingStatus === TimingStatus.Working
                   ? `${ordinal(pomodoroNum)} 🍅`
-                  : 'Break time'}
+                  : 'Break time ☕'}
                 , {formatTime(time - (Date.now() - beginAt.getTime()))}{' '}
                 remaining.
               </TimingPanel>
