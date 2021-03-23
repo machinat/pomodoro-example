@@ -24,6 +24,19 @@ const useEventIntent = (recognizer: DialogFlow.IntentRecognizer) => async (
     };
   }
 
+  if (
+    event.platform === 'messenger' &&
+    event.kind === 'message' &&
+    event.type === 'image' &&
+    event.stickerId === 369239263222822
+  ) {
+    return {
+      type: ACTION_OK,
+      confidence: 1,
+      payload: null,
+    };
+  }
+
   if (event.type === 'text') {
     if (event.text === '👍' || event.text === '👌') {
       return {
