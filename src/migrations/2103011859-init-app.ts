@@ -8,14 +8,13 @@ const { HOST, TELEGRAM_SECRET_PATH } = process.env;
 
 const ENTRY_URL = `https://${HOST}`;
 
-export const up = async (app: MachinatApp<any>) => {
-  const [messengerBot, telegramBot] = app.useServices([
+export const up = async ({ context: app }) => {
+  const [messengerBot, telegramBot] = (app as MachinatApp<any>).useServices([
     Messenger.Bot,
     Telegram.Bot,
   ] as const);
 
   await messengerBot.makeApiCall('POST', 'me/messenger_profile', {
-    whitelisted_domains: [ENTRY_URL],
     get_started: {
       payload: encodePostbackData({ action: ACTION_MESSENGER_GETTING_START }),
     },
@@ -32,8 +31,8 @@ export const up = async (app: MachinatApp<any>) => {
   });
 };
 
-export const down = async (app: MachinatApp<any>) => {
-  const [messengerBot, telegramBot] = app.useServices([
+export const down = async ({ context: app }) => {
+  const [messengerBot, telegramBot] = (app as MachinatApp<any>).useServices([
     Messenger.Bot,
     Telegram.Bot,
   ] as const);
