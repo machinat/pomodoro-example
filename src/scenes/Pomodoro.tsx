@@ -178,10 +178,19 @@ export default build<PomodoroParams, PomodoroVars, AppEventContext, void, void>(
       <CALL<PomodoroVars, typeof Timing>
         script={Timing}
         key="wait-timing"
-        params={({ vars }) => ({
-          ...vars,
-          time: vars.remainingTime || vars.settings.workingMins * 60000,
-        })}
+        params={({ vars }) => {
+          const { remainingTime, settings, timingStatus } = vars;
+          return {
+            ...vars,
+            time:
+              remainingTime ||
+              (timingStatus === TimingStatus.Working
+                ? settings.workingMins
+                : timingStatus === TimingStatus.LongBreak
+                ? settings.longBreakMins
+                : settings.shortBreakMins) * 60000,
+          };
+        }}
         set={({ vars }, { settings, remainingTime }) => {
           const { pomodoroNum, timingStatus } = vars;
           const isFininshed = !remainingTime;
