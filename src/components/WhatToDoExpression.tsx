@@ -15,12 +15,12 @@ const WhatToDoExpression = ({ children }, { platform }) => {
         <Messenger.Expression
           quickReplies={
             <>
-              <Messenger.QuickReply title={CONTINUE} payload={ACTION_OK} />
-              <Messenger.QuickReply
+              <Messenger.TextReply title={CONTINUE} payload={ACTION_OK} />
+              <Messenger.TextReply
                 title={CHANGE_SETTINGS}
                 payload={ACTION_SETTINGS}
               />
-              <Messenger.QuickReply title={WHATS_THIS} payload={ACTION_ABOUT} />
+              <Messenger.TextReply title={WHATS_THIS} payload={ACTION_ABOUT} />
             </>
           }
         >

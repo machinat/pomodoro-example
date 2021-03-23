@@ -19,7 +19,7 @@ const RequestLocationIfPossible = (
           replyMarkup={
             <Telegram.ReplyKeyboard oneTimeKeyboard resizeKeyboard>
               <Telegram.KeyboardRow>
-                <Telegram.ReplyButton text="Send Location" requestLocation />
+                <Telegram.LocationReply text="Send Location" />
               </Telegram.KeyboardRow>
             </Telegram.ReplyKeyboard>
           }
