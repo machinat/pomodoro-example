@@ -14,7 +14,7 @@ import App from './app';
 import type { AppEventContext } from './types';
 
 const main = (app: typeof App): void => {
-  const timerSubject = new Subject<AppEventContext>();
+  const timer$ = new Subject<AppEventContext>();
   const [timer] = app.useServices([Timer]);
 
   timer.onTimesUp((targets) => {
@@ -23,7 +23,7 @@ const main = (app: typeof App): void => {
     for (const { channel } of targets) {
       const { platform } = channel;
 
-      timerSubject.next({
+      timer$.next({
         key: channel.uid,
         scope,
         value: {
@@ -43,9 +43,10 @@ const main = (app: typeof App): void => {
     }
   });
 
-  const events$ = merge(fromApp(app), timerSubject);
+  const chat$ = fromApp(app);
+  const event$ = merge(chat$, timer$);
 
-  events$.pipe(
+  event$.pipe(
     tap<AppEventContext>(
       makeContainer({
         deps: [Machinat.Bot, Script.Processor, Messenger.Profiler] as const,
@@ -59,13 +60,15 @@ const main = (app: typeof App): void => {
             return;
           }
 
-          let timezone: undefined | number;
-          if (event.platform === 'messenger' && event.user) {
-            ({ timezone } = await messengerProfiler.getUserProfile(event.user));
-          }
-
           let runtime = await scriptProcessor.continue(channel, context);
           if (!runtime) {
+            let timezone: undefined | number;
+            if (event.platform === 'messenger' && event.user) {
+              ({ timezone } = await messengerProfiler.getUserProfile(
+                event.user
+              ));
+            }
+
             runtime = await scriptProcessor.start(channel, Pomodoro, {
               params: { timezone },
             });
@@ -77,16 +80,16 @@ const main = (app: typeof App): void => {
     )
   );
 
-  events$.pipe(
+  chat$.pipe(
     filter(({ platform }) => platform === 'messenger'),
     tap(async ({ bot, event: { channel } }) => {
       await bot.render(channel, <MarkSeen />);
     })
   );
 
-  events$.pipe(
+  chat$.pipe(
     filter(
-      ({ platform, event }) =>
+      ({ event }) =>
         event.platform === 'telegram' && event.type === 'callback_query'
     ),
     tap(async ({ bot, event }) => {
