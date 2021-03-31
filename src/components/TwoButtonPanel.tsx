@@ -6,25 +6,38 @@ import * as Line from '@machinat/line/components';
 import encodePostbackData from '../utils/encodePostbackData';
 import { AppActionType } from '../types';
 
-type OneButtonPanelProps = {
+type TwoButtonPanelProps = {
   children: MachinatNode;
-  text: string;
-  action: AppActionType;
+  text1: string;
+  text2: string;
+  action1: AppActionType;
+  action2: AppActionType;
   makeLineAltText: (template: Record<string, unknown>) => string;
 };
 
-const OneButtonPanel = (
-  { children, text, action, makeLineAltText }: OneButtonPanelProps,
+const TwoButtonPanel = (
+  {
+    children,
+    text1,
+    text2,
+    action1,
+    action2,
+    makeLineAltText,
+  }: TwoButtonPanelProps,
   { platform }
 ) => {
-  const actionData = encodePostbackData({ action });
+  const data1 = encodePostbackData({ action: action1 });
+  const data2 = encodePostbackData({ action: action2 });
 
   switch (platform) {
     case 'messenger':
       return (
         <Messenger.ButtonTemplate
           buttons={
-            <Messenger.PostbackButton title={text} payload={actionData} />
+            <>
+              <Messenger.PostbackButton title={text1} payload={data1} />
+              <Messenger.PostbackButton title={text2} payload={action2} />
+            </>
           }
         >
           {children}
@@ -36,7 +49,10 @@ const OneButtonPanel = (
         <Telegram.Text
           replyMarkup={
             <Telegram.ReplyKeyboard resizeKeyboard>
-              <Telegram.TextReply text={text} />
+              <Telegram.KeyboardRow>
+                <Telegram.TextReply text={text1} />
+                <Telegram.TextReply text={text2} />
+              </Telegram.KeyboardRow>
             </Telegram.ReplyKeyboard>
           }
         >
@@ -49,11 +65,14 @@ const OneButtonPanel = (
         <Line.ButtonTemplate
           altText={makeLineAltText}
           actions={
-            <Line.PostbackAction
-              label={text}
-              displayText={text}
-              data={actionData}
-            />
+            <>
+              <Line.PostbackAction label={text1} data={data1} />
+              <Line.PostbackAction
+                label={text2}
+                displayText={text2}
+                data={data2}
+              />
+            </>
           }
         >
           {children}
@@ -65,4 +84,4 @@ const OneButtonPanel = (
   }
 };
 
-export default OneButtonPanel;
+export default TwoButtonPanel;
