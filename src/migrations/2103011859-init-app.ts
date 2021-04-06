@@ -8,7 +8,7 @@ const { HOST, TELEGRAM_SECRET_PATH } = process.env;
 
 const ENTRY_URL = `https://${HOST}`;
 
-export const up = async ({ context: app }) => {
+export const up = async ({ context: { app } }) => {
   const [messengerBot, telegramBot] = (app as MachinatApp<any>).useServices([
     Messenger.Bot,
     Telegram.Bot,
@@ -31,7 +31,7 @@ export const up = async ({ context: app }) => {
   });
 };
 
-export const down = async ({ context: app }) => {
+export const down = async ({ context: { app } }) => {
   const [messengerBot, telegramBot] = (app as MachinatApp<any>).useServices([
     Messenger.Bot,
     Telegram.Bot,

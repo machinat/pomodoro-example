@@ -45,7 +45,7 @@ export type AppChannel = MessengerChat | TelegramChat | LineChat;
 
 export type TimeUpEvent = {
   platform: 'messenger' | 'telegram' | 'line';
-  kind: 'timer';
+  category: 'timer';
   type: 'time_up';
   payload: null;
   user: null;

@@ -26,7 +26,7 @@ const useEventIntent = (recognizer: DialogFlow.IntentRecognizer) => async (
 
   if (
     event.platform === 'messenger' &&
-    event.kind === 'message' &&
+    event.category === 'message' &&
     event.type === 'image' &&
     event.stickerId === 369239263222822
   ) {

@@ -64,7 +64,7 @@ const app = Machinat.createApp({
 const umzug = new Umzug({
   storage: new JSONStorage({ path: path.resolve('./.migrated.json') }),
   logger: console,
-  context: app,
+  context: { app },
   migrations: {
     glob: path.resolve(__dirname, '../migrations/*.js'),
   },

@@ -30,7 +30,7 @@ const main = (app: typeof App): void => {
           platform,
           event: {
             platform,
-            kind: 'timer',
+            category: 'timer',
             type: 'time_up',
             payload: null,
             channel,
@@ -49,7 +49,7 @@ const main = (app: typeof App): void => {
   event$.pipe(
     tap<AppEventContext>(
       makeContainer({
-        deps: [Machinat.Bot, Script.Processor, Messenger.Profiler] as const,
+        deps: [Machinat.BaseBot, Script.Processor, Messenger.Profiler] as const,
       })(
         (bot, scriptProcessor, messengerProfiler) => async (
           context: AppEventContext
