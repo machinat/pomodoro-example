@@ -7,7 +7,6 @@ import Line from '@machinat/line';
 import LineAssetsManager from '@machinat/line/asset';
 import FileState from '@machinat/local-state/file';
 import RedisState from '@machinat/redis-state';
-import YAML from 'yaml';
 import { Umzug, JSONStorage } from 'umzug';
 import commander from 'commander';
 
@@ -56,8 +55,6 @@ const app = Machinat.createApp({
     }),
   ],
   services: [
-    { provide: FileState.Serializer, withValue: YAML },
-
     LineAssetsManager,
     MessengerAssetsManager,
   ],
@@ -77,10 +74,12 @@ commander
   .option('--down', 'roll back down')
   .parse(process.argv);
 
+const options = commander.opts();
+
 async function migrate() {
   await app.start();
 
-  if (commander.down) {
+  if (options.down) {
     await umzug.down();
   } else {
     await umzug.up();

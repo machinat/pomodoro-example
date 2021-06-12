@@ -15,7 +15,6 @@ import TelegramAssetsManager from '@machinat/telegram/asset';
 import RedisState from '@machinat/redis-state';
 import { FileState } from '@machinat/local-state';
 import DialogFlow from '@machinat/dialogflow';
-import YAML from 'yaml';
 
 import Script from '@machinat/script';
 import Pomodoro from './scenes/Pomodoro';
@@ -37,7 +36,7 @@ const {
   MESSENGER_VERIFY_TOKEN,
   // line
   LINE_PROVIDER_ID,
-  LINE_BOT_CHANNEL_ID,
+  LINE_CHANNEL_ID,
   LINE_ACCESS_TOKEN,
   LINE_CHANNEL_SECRET,
   // telegram
@@ -110,7 +109,7 @@ const app = Machinat.createApp({
     Line.initModule({
       entryPath: '/webhook/line',
       providerId: LINE_PROVIDER_ID,
-      channelId: LINE_BOT_CHANNEL_ID,
+      channelId: LINE_CHANNEL_ID,
       accessToken: LINE_ACCESS_TOKEN,
       channelSecret: LINE_CHANNEL_SECRET,
     }),
@@ -120,8 +119,6 @@ const app = Machinat.createApp({
     LineAssetsManager,
     MessengerAssetsManager,
     TelegramAssetsManager,
-
-    { provide: FileState.Serializer, withValue: YAML },
 
     Timer,
     useEventIntent,
