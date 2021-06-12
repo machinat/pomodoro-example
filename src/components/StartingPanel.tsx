@@ -1,5 +1,4 @@
-import Machinat from '@machinat/core';
-import { MachinatNode } from '@machinat/core/types';
+import Machinat, { MachinatNode } from '@machinat/core';
 import { ACTION_START } from '../constant';
 import OneButtonPanel from './OneButtonPanel';
 
@@ -7,7 +6,7 @@ type StartingPanelProps = {
   children: MachinatNode;
 };
 
-const StartingPanel = ({ children }: StartingPanelProps, { platform }) => {
+const StartingPanel = ({ children }: StartingPanelProps) => {
   return (
     <OneButtonPanel
       text="Start ▶️ "

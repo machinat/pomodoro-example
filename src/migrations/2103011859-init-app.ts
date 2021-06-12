@@ -1,12 +1,12 @@
-import type { MachinatApp } from '@machinat/core/types';
+import type { MachinatApp } from '@machinat/core';
 import Messenger from '@machinat/messenger';
 import Telegram from '@machinat/telegram';
 import encodePostbackData from '../utils/encodePostbackData';
 import { ACTION_MESSENGER_GETTING_START } from '../constant';
 
-const { HOST, TELEGRAM_SECRET_PATH } = process.env;
+const { DOMAIN, TELEGRAM_SECRET_PATH } = process.env;
 
-const ENTRY_URL = `https://${HOST}`;
+const ENTRY_URL = `https://${DOMAIN}`;
 
 export const up = async ({ context: { app } }) => {
   const [messengerBot, telegramBot] = (app as MachinatApp<any>).useServices([

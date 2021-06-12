@@ -7,8 +7,8 @@
     "migrate": "node -r dotenv/config ./lib/cli/migrate.js",
     "test": "jest",
     "build": "tsc",
-    "start": "node -r dotenv/config ./lib/serve.js",
-    "dev": "nodemon -x ts-node -w src -i src/webview -r dotenv/config -e 'ts tsx' ./src/serve.ts"
+    "start": "node -r dotenv/config ./lib/index.js",
+    "dev": "nodemon -x ts-node -w src -i src/webview -r dotenv/config -e 'ts tsx' ./src/index.ts"
   },
   "license": "MIT",
   "husky": {
@@ -21,16 +21,16 @@
     "testEnvironment": "node"
   },
   "dependencies": {
-    "@machinat/core": "0.4.1-alpha.2",
-    "@machinat/dialogflow": "0.4.1-alpha.1",
-    "@machinat/http": "0.4.1-alpha.1",
-    "@machinat/line": "0.4.1-alpha.1",
-    "@machinat/local-state": "0.4.1-alpha.1",
-    "@machinat/messenger": "0.4.1-alpha.1",
-    "@machinat/redis-state": "0.4.1-alpha.1",
-    "@machinat/script": "0.4.1-alpha.1",
-    "@machinat/stream": "0.4.1-alpha.1",
-    "@machinat/telegram": "0.4.1-alpha.1",
+    "@machinat/core": "^0.4.1-alpha.34",
+    "@machinat/dialogflow": "^0.4.1-alpha.34",
+    "@machinat/http": "^0.4.1-alpha.34",
+    "@machinat/line": "^0.4.1-alpha.38",
+    "@machinat/local-state": "^0.4.1-alpha.34",
+    "@machinat/messenger": "^0.4.1-alpha.38",
+    "@machinat/redis-state": "^0.4.1-alpha.34",
+    "@machinat/script": "^0.4.1-alpha.38",
+    "@machinat/stream": "^0.4.1-alpha.34",
+    "@machinat/telegram": "^0.4.1-alpha.38",
     "commander": "^2.20.0",
     "dotenv": "^8.0.0",
     "ordinal": "^1.0.3",
@@ -52,7 +52,7 @@
     "husky": "^4.2.5",
     "jest": "^24.8.0",
     "nodemon": ">=1.19.1",
-    "prettier": "^2.1.2",
+    "prettier": "^2.3.1",
     "ts-jest": "^26.4.1",
     "ts-node": "^9.0.0",
     "typescript": "^4.0.3"

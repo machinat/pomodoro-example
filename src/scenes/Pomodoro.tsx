@@ -41,7 +41,7 @@ type PomodoroVars = {
   registerTimerAt: Date;
 };
 
-export default build<PomodoroParams, PomodoroVars, AppEventContext, void, void>(
+export default build<PomodoroVars, AppEventContext, PomodoroParams, void, void>(
   {
     name: 'Pomodoro',
     initVars: ({ timezone }) => ({
@@ -103,13 +103,14 @@ export default build<PomodoroParams, PomodoroVars, AppEventContext, void, void>(
     <PROMPT<PomodoroVars, AppEventContext>
       key="confirm-settings"
       set={makeContainer({ deps: [useEventIntent] })(
-        (getIntent) => async ({ vars }, { event }) => {
-          const intent = await getIntent(event);
-          return {
-            ...vars,
-            action: intent.type === ACTION_SET_UP ? ACTION_SET_UP : ACTION_OK,
-          };
-        }
+        (getIntent) =>
+          async ({ vars }, { event }) => {
+            const intent = await getIntent(event);
+            return {
+              ...vars,
+              action: intent.type === ACTION_SET_UP ? ACTION_SET_UP : ACTION_OK,
+            };
+          }
       )}
     />
 
@@ -170,8 +171,11 @@ export default build<PomodoroParams, PomodoroVars, AppEventContext, void, void>(
       <EFFECT<PomodoroVars>
         do={makeContainer({
           deps: [Timer],
-        })((timer) => ({ vars, channel }) => () =>
-          timer.registerTimer(channel as AppChannel, vars.registerTimerAt)
+        })(
+          (timer) =>
+            ({ vars, channel }) =>
+            () =>
+              timer.registerTimer(channel as AppChannel, vars.registerTimerAt)
         )}
       />
 
@@ -217,8 +221,11 @@ export default build<PomodoroParams, PomodoroVars, AppEventContext, void, void>(
       <EFFECT<PomodoroVars>
         do={makeContainer({
           deps: [Timer],
-        })((timer) => ({ vars, channel }) => () =>
-          timer.cancelTimer(channel as AppChannel, vars.registerTimerAt)
+        })(
+          (timer) =>
+            ({ vars, channel }) =>
+            () =>
+              timer.cancelTimer(channel as AppChannel, vars.registerTimerAt)
         )}
       />
     </WHILE>

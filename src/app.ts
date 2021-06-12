@@ -68,7 +68,7 @@ const app = Machinat.createApp({
         })
       : RedisState.initModule({
           clientOptions: {
-            url: REDIS_URL as string,
+            url: REDIS_URL,
           },
         }),
 
@@ -77,7 +77,7 @@ const app = Machinat.createApp({
     }),
 
     DialogFlow.initModule({
-      projectId: DIALOG_FLOW_PROJECT_ID as string,
+      projectId: DIALOG_FLOW_PROJECT_ID,
       gcpAuthConfig: GOOGLE_APPLICATION_CREDENTIALS
         ? undefined
         : {
@@ -93,7 +93,7 @@ const app = Machinat.createApp({
   platforms: [
     Messenger.initModule({
       entryPath: '/webhook/messenger',
-      pageId: MESSENGER_PAGE_ID as string,
+      pageId: Number(MESSENGER_PAGE_ID),
       appSecret: MESSENGER_APP_SECRET,
       accessToken: MESSENGER_ACCESS_TOKEN,
       verifyToken: MESSENGER_VERIFY_TOKEN,

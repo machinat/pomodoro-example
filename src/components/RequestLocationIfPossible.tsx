@@ -1,5 +1,4 @@
-import Machinat from '@machinat/core';
-import { MachinatNode } from '@machinat/core/types';
+import Machinat, { MachinatNode } from '@machinat/core';
 import * as Telegram from '@machinat/telegram/components';
 import * as Line from '@machinat/line/components';
 

@@ -14,9 +14,9 @@ type AskingTimezoneVars = {
 };
 
 export default build<
-  AskingTimezoneData,
   AskingTimezoneVars,
   AppEventContext,
+  AskingTimezoneData,
   AskingTimezoneData
 >(
   {

@@ -7,7 +7,7 @@ import {
   WHILE,
   PROMPT,
   RETURN,
-  VARS,
+  EFFECT,
   CALL,
 } from '@machinat/script/keywords';
 import AskingTimezone from './AskingTimezone';
@@ -49,7 +49,7 @@ const ASKING = (field: keyof PomodoroSettings, words: string) => (
       />
     </WHILE>
 
-    <VARS<SetUpVars>
+    <EFFECT<SetUpVars>
       set={({ vars }) => ({
         ...vars,
         settings: {
@@ -62,7 +62,7 @@ const ASKING = (field: keyof PomodoroSettings, words: string) => (
   </>
 );
 
-export default build<SetUpData, SetUpVars, AppEventContext, SetUpData>(
+export default build<SetUpVars, AppEventContext, SetUpData, SetUpData>(
   {
     name: 'SetUp',
     initVars: (input) => ({ settings: input.settings, answerSlot: undefined }),

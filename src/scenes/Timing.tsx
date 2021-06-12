@@ -6,7 +6,7 @@ import {
   $,
   IF,
   THEN,
-  VARS,
+  EFFECT,
   WHILE,
   PROMPT,
   CALL,
@@ -54,7 +54,7 @@ type TimingReturn = {
   remainingTime: undefined | number;
 };
 
-export default build<TimingParams, TimingVars, AppEventContext, TimingReturn>(
+export default build<TimingVars, AppEventContext, TimingParams, TimingReturn>(
   {
     name: 'Timing',
     initVars: (params) => ({
@@ -103,21 +103,22 @@ export default build<TimingParams, TimingVars, AppEventContext, TimingReturn>(
       <PROMPT<TimingVars, AppEventContext>
         key="wait-timing-up"
         set={makeContainer({ deps: [useEventIntent] })(
-          (getIntent) => async ({ vars }, { event }) => {
-            const { type: intentType } = await getIntent(event);
-            const pauseAt = intentType === ACTION_PAUSE ? new Date() : null;
+          (getIntent) =>
+            async ({ vars }, { event }) => {
+              const { type: intentType } = await getIntent(event);
+              const pauseAt = intentType === ACTION_PAUSE ? new Date() : null;
 
-            return {
-              ...vars,
-              pauseAt,
-              action:
-                intentType === ACTION_OK
-                  ? vars.action === ACTION_STOP
-                    ? ACTION_TIME_UP
-                    : ACTION_OK
-                  : intentType,
-            };
-          }
+              return {
+                ...vars,
+                pauseAt,
+                action:
+                  intentType === ACTION_OK
+                    ? vars.action === ACTION_STOP
+                      ? ACTION_TIME_UP
+                      : ACTION_OK
+                    : intentType,
+              };
+            }
         )}
       />
 
@@ -130,7 +131,7 @@ export default build<TimingParams, TimingVars, AppEventContext, TimingReturn>(
             key="setting-up"
           />
 
-          <VARS<TimingVars>
+          <EFFECT<TimingVars>
             set={({ vars }) => ({ ...vars, actions: ACTION_OK })}
           />
         </THEN>

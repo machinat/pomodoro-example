@@ -1,5 +1,5 @@
-import Machinat from '@machinat/core';
-import { MachinatNode } from '@machinat/core/types';
+import Machinat, { MachinatNode } from '@machinat/core';
+
 import { ACTION_PAUSE, ACTION_STOP } from '../constant';
 import TwoButtonPanel from './TwoButtonPanel';
 
@@ -10,7 +10,7 @@ type TimingPanelProps = {
 const STOP = 'Stop ⏹';
 const PAUSE = 'Pause ⏸️';
 
-const TimingPanel = ({ children }: TimingPanelProps, { platform }) => {
+const TimingPanel = ({ children }: TimingPanelProps) => {
   return (
     <TwoButtonPanel
       text1={PAUSE}

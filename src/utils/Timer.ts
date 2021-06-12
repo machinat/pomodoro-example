@@ -2,9 +2,9 @@ import { makeClassProvider } from '@machinat/core/service';
 import StateController from '@machinat/core/base/StateController';
 import BaseBot from '@machinat/core/base/Bot';
 import Script from '@machinat/script';
-import type { MessengerChat } from '@machinat/messenger/types';
-import type { TelegramChat } from '@machinat/telegram/types';
-import type { LineChat } from '@machinat/line/types';
+import type { MessengerChat } from '@machinat/messenger';
+import type { TelegramChat } from '@machinat/telegram';
+import type { LineChat } from '@machinat/line';
 
 type TimerData = {
   channel: MessengerChat | TelegramChat | LineChat;

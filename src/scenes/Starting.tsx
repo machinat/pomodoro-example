@@ -5,7 +5,7 @@ import { build } from '@machinat/script';
 import {
   IF,
   THEN,
-  VARS,
+  EFFECT,
   WHILE,
   PROMPT,
   CALL,
@@ -54,10 +54,9 @@ type StartingReturn = {
 };
 
 const CHECK_DAY_CHANGE = () => (
-  <VARS<StartingVars>
+  <EFFECT<StartingVars>
     set={({ vars }) => {
       const dayId = currentDayId(vars.settings.timezone);
-
       const isDayChanged = dayId !== vars.dayId;
       if (!isDayChanged) {
         return vars;
@@ -77,9 +76,9 @@ const CHECK_DAY_CHANGE = () => (
 );
 
 export default build<
-  StartingParams,
   StartingVars,
   AppEventContext,
+  StartingParams,
   StartingReturn
 >(
   {
@@ -162,19 +161,20 @@ export default build<
       <PROMPT<StartingVars, AppEventContext>
         key="wait-start"
         set={makeContainer({ deps: [useEventIntent] })(
-          (getIntent) => async ({ vars }, { event }) => {
-            const { type: intentType } = await getIntent(event);
+          (getIntent) =>
+            async ({ vars }, { event }) => {
+              const { type: intentType } = await getIntent(event);
 
-            return {
-              ...vars,
-              action:
-                intentType === ACTION_OK
-                  ? vars.action === ACTION_OK
-                    ? ACTION_START
-                    : ACTION_OK
-                  : intentType,
-            };
-          }
+              return {
+                ...vars,
+                action:
+                  intentType === ACTION_OK
+                    ? vars.action === ACTION_OK
+                      ? ACTION_START
+                      : ACTION_OK
+                    : intentType,
+              };
+            }
         )}
       />
 

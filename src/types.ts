@@ -1,13 +1,7 @@
 import type BaseBot from '@machinat/core/base/Bot';
-import type {
-  MessengerChat,
-  MessengerEventContext,
-} from '@machinat/messenger/types';
-import type {
-  TelegramChat,
-  TelegramEventContext,
-} from '@machinat/telegram/types';
-import type { LineChat, LineEventContext } from '@machinat/line/types';
+import type { MessengerChat, MessengerEventContext } from '@machinat/messenger';
+import type { TelegramChat, TelegramEventContext } from '@machinat/telegram';
+import type { LineChat, LineEventContext } from '@machinat/line';
 import {
   ACTION_ABOUT,
   ACTION_SETTINGS,
@@ -52,13 +46,16 @@ export type TimeUpEvent = {
   channel: AppChannel;
 };
 
-export type AppEventContext =
+export type ChatEventContext =
   | MessengerEventContext
   | TelegramEventContext
-  | LineEventContext
-  | {
-      platform: 'messenger' | 'telegram' | 'line';
-      event: TimeUpEvent;
-      metadata: { source: 'timer' };
-      bot: BaseBot;
-    };
+  | LineEventContext;
+
+export type TimerEventContext = {
+  platform: 'messenger' | 'telegram' | 'line';
+  event: TimeUpEvent;
+  metadata: { source: 'timer' };
+  bot: BaseBot;
+};
+
+export type AppEventContext = ChatEventContext | TimerEventContext;
