@@ -4,7 +4,7 @@ import type { TelegramChat, TelegramEventContext } from '@machinat/telegram';
 import type { LineChat, LineEventContext } from '@machinat/line';
 import {
   ACTION_ABOUT,
-  ACTION_SETTINGS,
+  ACTION_CHECK_SETTINGS,
   ACTION_SET_UP,
   ACTION_START,
   ACTION_STOP,
@@ -29,7 +29,7 @@ export type AppActionType =
   | typeof ACTION_PAUSE
   | typeof ACTION_TIME_UP
   | typeof ACTION_ABOUT
-  | typeof ACTION_SETTINGS
+  | typeof ACTION_CHECK_SETTINGS
   | typeof ACTION_SET_UP
   | typeof ACTION_OK
   | typeof ACTION_NO

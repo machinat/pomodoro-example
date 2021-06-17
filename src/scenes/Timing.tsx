@@ -23,7 +23,7 @@ import {
   ACTION_ABOUT,
   ACTION_STOP,
   ACTION_PAUSE,
-  ACTION_SETTINGS,
+  ACTION_CHECK_SETTINGS,
   ACTION_SET_UP,
   ACTION_TIME_UP,
   ACTION_OK,
@@ -54,6 +54,20 @@ type TimingReturn = {
   remainingTime: undefined | number;
 };
 
+const PROMPT_WHEN_TIMING = (key: string) => (
+  <PROMPT<TimingVars, AppEventContext>
+    key={key}
+    set={makeContainer({ deps: [useIntent] })(
+      (getIntent) =>
+        async ({ vars }, { event }) => {
+          const { type: intentType } = await getIntent(event);
+          const pauseAt = intentType === ACTION_PAUSE ? new Date() : null;
+          return { ...vars, pauseAt, action: intentType };
+        }
+    )}
+  />
+);
+
 export default build<TimingVars, AppEventContext, TimingParams, TimingReturn>(
   {
     name: 'Timing',
@@ -78,15 +92,8 @@ export default build<TimingVars, AppEventContext, TimingParams, TimingReturn>(
         switch (action) {
           case ACTION_ABOUT:
             return <About />;
-          case ACTION_SETTINGS:
+          case ACTION_CHECK_SETTINGS:
             return <SettingsPanel settings={settings} />;
-          case ACTION_STOP:
-            return (
-              <StopingPanel>
-                Skip current{' '}
-                {timingStatus === TimingStatus.Working ? 'pomodoro' : 'break'}?
-              </StopingPanel>
-            );
           default:
             return (
               <TimingPanel>
@@ -100,27 +107,44 @@ export default build<TimingVars, AppEventContext, TimingParams, TimingReturn>(
         }
       }}
 
-      <PROMPT<TimingVars, AppEventContext>
-        key="wait-timing-up"
-        set={makeContainer({ deps: [useIntent] })(
-          (getIntent) =>
-            async ({ vars }, { event }) => {
-              const { type: intentType } = await getIntent(event);
-              const pauseAt = intentType === ACTION_PAUSE ? new Date() : null;
+      {PROMPT_WHEN_TIMING('wait-timing-up')}
 
-              return {
-                ...vars,
-                pauseAt,
-                action:
-                  intentType === ACTION_OK
-                    ? vars.action === ACTION_STOP
-                      ? ACTION_TIME_UP
-                      : ACTION_OK
-                    : intentType,
-              };
+      <IF<TimingVars> condition={({ vars }) => vars.action === ACTION_STOP}>
+        <THEN>
+          <IF<TimingVars>
+            condition={({ vars }) => vars.timingStatus === TimingStatus.Working}
+          >
+            <THEN>
+              {() => <StopingPanel>Skip current pomodoro?</StopingPanel>}
+              {PROMPT_WHEN_TIMING('ask-should-skip')}
+            </THEN>
+          </IF>
+
+          <IF<TimingVars>
+            condition={({ vars }) =>
+              vars.timingStatus !== TimingStatus.Working ||
+              vars.action === ACTION_OK
             }
-        )}
-      />
+          >
+            <THEN>
+              {({ vars: { timingStatus, pomodoroNum } }) =>
+                timingStatus === TimingStatus.Working ? (
+                  <p>{ordinal(pomodoroNum)} 🍅 skipped.</p>
+                ) : (
+                  <p>Break time skipped.</p>
+                )
+              }
+
+              <RETURN<TimingVars, TimingReturn>
+                value={({ vars: { settings } }) => ({
+                  settings,
+                  remainingTime: undefined,
+                })}
+              />
+            </THEN>
+          </IF>
+        </THEN>
+      </IF>
 
       <IF<TimingVars> condition={({ vars }) => vars.action === ACTION_SET_UP}>
         <THEN>

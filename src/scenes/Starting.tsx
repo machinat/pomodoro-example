@@ -21,7 +21,7 @@ import currentDayId from '../utils/currentDayId';
 import {
   ACTION_ABOUT,
   ACTION_START,
-  ACTION_SETTINGS,
+  ACTION_CHECK_SETTINGS,
   ACTION_SET_UP,
   ACTION_STOP,
   ACTION_PAUSE,
@@ -148,7 +148,7 @@ export default build<
 
           case ACTION_ABOUT:
             return <About />;
-          case ACTION_SETTINGS:
+          case ACTION_CHECK_SETTINGS:
             return <SettingsPanel settings={settings} />;
           case ACTION_STOP:
           case ACTION_PAUSE:

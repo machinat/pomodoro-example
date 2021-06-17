@@ -13,7 +13,7 @@ export const ACTION_STOP = 'stop';
 export const ACTION_TIME_UP = 'time_up';
 
 /** Show settings */
-export const ACTION_SETTINGS = 'settings';
+export const ACTION_CHECK_SETTINGS = 'settings';
 
 /** Edit settings */
 export const ACTION_SET_UP = 'set_up';

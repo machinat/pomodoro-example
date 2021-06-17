@@ -2,7 +2,7 @@ import Machinat from '@machinat/core';
 import * as Messenger from '@machinat/messenger/components';
 import * as Telegram from '@machinat/telegram/components';
 import * as Line from '@machinat/line/components';
-import { ACTION_OK, ACTION_SETTINGS, ACTION_ABOUT } from '../constant';
+import { ACTION_OK, ACTION_CHECK_SETTINGS, ACTION_ABOUT } from '../constant';
 
 const CONTINUE = 'Continue';
 const CHANGE_SETTINGS = 'Change Settings';
@@ -18,7 +18,7 @@ const WhatToDoExpression = ({ children }, { platform }) => {
               <Messenger.TextReply title={CONTINUE} payload={ACTION_OK} />
               <Messenger.TextReply
                 title={CHANGE_SETTINGS}
-                payload={ACTION_SETTINGS}
+                payload={ACTION_CHECK_SETTINGS}
               />
               <Messenger.TextReply title={WHATS_THIS} payload={ACTION_ABOUT} />
             </>
@@ -36,7 +36,7 @@ const WhatToDoExpression = ({ children }, { platform }) => {
               <Telegram.CallbackButton text={CONTINUE} data={ACTION_OK} />
               <Telegram.CallbackButton
                 text={CHANGE_SETTINGS}
-                data={ACTION_SETTINGS}
+                data={ACTION_CHECK_SETTINGS}
               />
               <Telegram.CallbackButton text={WHATS_THIS} data={ACTION_ABOUT} />
             </Telegram.InlineKeyboard>
@@ -65,7 +65,7 @@ const WhatToDoExpression = ({ children }, { platform }) => {
                   <Line.PostbackAction
                     label={CHANGE_SETTINGS}
                     displayText={CHANGE_SETTINGS}
-                    data={ACTION_SETTINGS}
+                    data={ACTION_CHECK_SETTINGS}
                   />
                 }
               />

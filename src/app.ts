@@ -104,10 +104,7 @@ const app = Machinat.createApp({
     }),
   ],
 
-  services: [
-    Timer,
-    useIntent,
-  ],
+  services: [Timer, useIntent],
 });
 
 export default app;
