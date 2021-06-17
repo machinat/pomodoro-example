@@ -15,7 +15,7 @@ import SettingsPanel from '../components/SettingsPanel';
 import About from '../components/About';
 import StartingPanel from '../components/StartingPanel';
 
-import useEventIntent from '../utils/useEventIntent';
+import useIntent from '../services/useIntent';
 import formatTime from '../utils/formatTime';
 import currentDayId from '../utils/currentDayId';
 import {
@@ -160,7 +160,7 @@ export default build<
 
       <PROMPT<StartingVars, AppEventContext>
         key="wait-start"
-        set={makeContainer({ deps: [useEventIntent] })(
+        set={makeContainer({ deps: [useIntent] })(
           (getIntent) =>
             async ({ vars }, { event }) => {
               const { type: intentType } = await getIntent(event);

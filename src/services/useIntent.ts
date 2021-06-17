@@ -13,7 +13,7 @@ type EventIntent = {
   payload: any;
 };
 
-const useEventIntent =
+const useIntent =
   (recognizer: DialogFlow.IntentRecognizer) =>
   async (
     event: MessengerEvent | TelegramEvent | LineEvent | TimeUpEvent
@@ -85,4 +85,4 @@ const useEventIntent =
 export default makeFactoryProvider({
   lifetime: 'scoped',
   deps: [DialogFlow.IntentRecognizer],
-})(useEventIntent);
+})(useIntent);

@@ -3,7 +3,7 @@ import BaseBot from '@machinat/core/base/Bot';
 import { Stream, fromApp } from '@machinat/stream';
 import main from './main';
 import app from './app';
-import Timer from './utils/Timer';
+import Timer from './services/Timer';
 import { TimerEventContext } from './types';
 
 app.onError(console.error);

@@ -1,29 +1,19 @@
 import Machinat from '@machinat/core';
 import HTTP from '@machinat/http';
-
 import Messenger from '@machinat/messenger';
-import MessengerAssetsManager, {
-  saveReusableAttachments,
-} from '@machinat/messenger/asset';
-
 import Line from '@machinat/line';
-import LineAssetsManager from '@machinat/line/asset';
-
 import Telegram from '@machinat/telegram';
-import TelegramAssetsManager from '@machinat/telegram/asset';
-
 import RedisState from '@machinat/redis-state';
 import { FileState } from '@machinat/local-state';
 import DialogFlow from '@machinat/dialogflow';
-
 import Script from '@machinat/script';
 import Pomodoro from './scenes/Pomodoro';
 import SetUp from './scenes/SetUp';
 import Starting from './scenes/Starting';
 import Timing from './scenes/Timing';
 import AskingTimezone from './scenes/AskingTimezone';
-import useEventIntent from './utils/useEventIntent';
-import Timer from './utils/Timer';
+import useIntent from './services/useIntent';
+import Timer from './services/Timer';
 
 const {
   // location
@@ -91,23 +81,22 @@ const app = Machinat.createApp({
 
   platforms: [
     Messenger.initModule({
-      entryPath: '/webhook/messenger',
+      webhookPath: '/webhook/messenger',
       pageId: Number(MESSENGER_PAGE_ID),
       appSecret: MESSENGER_APP_SECRET,
       accessToken: MESSENGER_ACCESS_TOKEN,
       verifyToken: MESSENGER_VERIFY_TOKEN,
       optionalProfileFields: ['timezone'],
-      dispatchMiddlewares: [saveReusableAttachments],
     }),
 
     Telegram.initModule({
       botToken: TELEGRAM_BOT_TOKEN,
-      entryPath: '/webhook/telegram',
+      webhookPath: '/webhook/telegram',
       secretPath: TELEGRAM_SECRET_PATH,
     }),
 
     Line.initModule({
-      entryPath: '/webhook/line',
+      webhookPath: '/webhook/line',
       providerId: LINE_PROVIDER_ID,
       channelId: LINE_CHANNEL_ID,
       accessToken: LINE_ACCESS_TOKEN,
@@ -116,12 +105,8 @@ const app = Machinat.createApp({
   ],
 
   services: [
-    LineAssetsManager,
-    MessengerAssetsManager,
-    TelegramAssetsManager,
-
     Timer,
-    useEventIntent,
+    useIntent,
   ],
 });
 

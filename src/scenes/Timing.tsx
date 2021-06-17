@@ -17,7 +17,7 @@ import StopingPanel from '../components/StopingPanel';
 import SettingsPanel from '../components/SettingsPanel';
 import About from '../components/About';
 
-import useEventIntent from '../utils/useEventIntent';
+import useIntent from '../services/useIntent';
 import formatTime from '../utils/formatTime';
 import {
   ACTION_ABOUT,
@@ -102,7 +102,7 @@ export default build<TimingVars, AppEventContext, TimingParams, TimingReturn>(
 
       <PROMPT<TimingVars, AppEventContext>
         key="wait-timing-up"
-        set={makeContainer({ deps: [useEventIntent] })(
+        set={makeContainer({ deps: [useIntent] })(
           (getIntent) =>
             async ({ vars }, { event }) => {
               const { type: intentType } = await getIntent(event);

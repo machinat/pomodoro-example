@@ -12,9 +12,9 @@ import {
 } from '@machinat/script/keywords';
 import SettingsPanel from '../components/SettingsPanel';
 import Pause from '../components/Pause';
-import useEventIntent from '../utils/useEventIntent';
+import Timer from '../services/Timer';
+import useIntent from '../services/useIntent';
 import currentDayId from '../utils/currentDayId';
-import Timer from '../utils/Timer';
 import { ACTION_OK, ACTION_SET_UP, TimingStatus } from '../constant';
 import type {
   PomodoroSettings,
@@ -102,7 +102,7 @@ export default build<PomodoroVars, AppEventContext, PomodoroParams, void, void>(
 
     <PROMPT<PomodoroVars, AppEventContext>
       key="confirm-settings"
-      set={makeContainer({ deps: [useEventIntent] })(
+      set={makeContainer({ deps: [useIntent] })(
         (getIntent) =>
           async ({ vars }, { event }) => {
             const intent = await getIntent(event);

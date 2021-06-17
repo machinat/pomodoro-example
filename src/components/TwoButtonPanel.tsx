@@ -36,7 +36,7 @@ const TwoButtonPanel = (
           buttons={
             <>
               <Messenger.PostbackButton title={text1} payload={data1} />
-              <Messenger.PostbackButton title={text2} payload={action2} />
+              <Messenger.PostbackButton title={text2} payload={data2} />
             </>
           }
         >
