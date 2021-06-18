@@ -24,10 +24,10 @@
     "@machinat/script": "^0.4.1-alpha.38",
     "@machinat/stream": "^0.4.1-alpha.39",
     "@machinat/telegram": "^0.4.1-alpha.42",
+    "@machinat/per-env": "^1.1.0",
     "commander": "^7.2.0",
     "dotenv": "^8.2.0",
     "ordinal": "^1.0.3",
-    "per-env": "github:machinat/per-env",
     "umzug": "^3.0.0-beta.15"
   },
   "devDependencies": {
