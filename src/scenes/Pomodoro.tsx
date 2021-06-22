@@ -20,7 +20,6 @@ import type {
   PomodoroSettings,
   AppActionType,
   AppEventContext,
-  AppChannel,
 } from '../types';
 import Starting from './Starting';
 import Timing from './Timing';
@@ -174,8 +173,7 @@ export default build<PomodoroVars, AppEventContext, PomodoroParams, void, void>(
         })(
           (timer) =>
             ({ vars, channel }) =>
-            () =>
-              timer.registerTimer(channel as AppChannel, vars.registerTimerAt)
+              timer.registerTimer(channel, vars.registerTimerAt)
         )}
       />
 
@@ -224,8 +222,7 @@ export default build<PomodoroVars, AppEventContext, PomodoroParams, void, void>(
         })(
           (timer) =>
             ({ vars, channel }) =>
-            () =>
-              timer.cancelTimer(channel as AppChannel, vars.registerTimerAt)
+              timer.cancelTimer(channel, vars.registerTimerAt)
         )}
       />
     </WHILE>

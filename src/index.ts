@@ -12,6 +12,7 @@ app
   .then(() => {
     const timer$ = new Stream<TimerEventContext>();
     const [timer] = app.useServices([Timer]);
+    timer.start();
 
     timer.onTimesUp((targets) => {
       const [bot, scope] = app.useServices([BaseBot, ServiceScope]);
@@ -39,7 +40,6 @@ app
       }
     });
 
-    timer.start();
     main(fromApp(app), timer$);
   })
   .catch(console.error);
