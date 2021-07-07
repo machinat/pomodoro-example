@@ -22,7 +22,7 @@ const main = (
   event$.pipe(
     tap<AppEventContext>(
       makeContainer({
-        deps: [Machinat.BaseBot, Script.Processor, Messenger.Profiler] as const,
+        deps: [Machinat.Bot, Script.Processor, Messenger.Profiler] as const,
       })(
         (bot, scriptProcessor, messengerProfiler) =>
           async (context: AppEventContext) => {
