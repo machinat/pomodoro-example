@@ -51,33 +51,27 @@ const WhatToDoExpression = ({ children }, { platform }) => {
         <Line.Expression
           quickReplies={
             <>
-              <Line.QuickReply
-                action={
-                  <Line.PostbackAction
-                    label={CONTINUE}
-                    displayText={CONTINUE}
-                    data={ACTION_OK}
-                  />
-                }
-              />
-              <Line.QuickReply
-                action={
-                  <Line.PostbackAction
-                    label={CHANGE_SETTINGS}
-                    displayText={CHANGE_SETTINGS}
-                    data={ACTION_CHECK_SETTINGS}
-                  />
-                }
-              />
-              <Line.QuickReply
-                action={
-                  <Line.PostbackAction
-                    label={WHATS_THIS}
-                    displayText={WHATS_THIS}
-                    data={ACTION_ABOUT}
-                  />
-                }
-              />
+              <Line.QuickReply>
+                <Line.PostbackAction
+                  label={CONTINUE}
+                  displayText={CONTINUE}
+                  data={ACTION_OK}
+                />
+              </Line.QuickReply>
+              <Line.QuickReply>
+                <Line.PostbackAction
+                  label={CHANGE_SETTINGS}
+                  displayText={CHANGE_SETTINGS}
+                  data={ACTION_CHECK_SETTINGS}
+                />
+              </Line.QuickReply>
+              <Line.QuickReply>
+                <Line.PostbackAction
+                  label={WHATS_THIS}
+                  displayText={WHATS_THIS}
+                  data={ACTION_ABOUT}
+                />
+              </Line.QuickReply>
             </>
           }
         >
