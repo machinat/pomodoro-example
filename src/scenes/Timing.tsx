@@ -21,7 +21,7 @@ import useIntent from '../services/useIntent';
 import formatTime from '../utils/formatTime';
 import {
   ACTION_ABOUT,
-  ACTION_STOP,
+  ACTION_SKIP,
   ACTION_PAUSE,
   ACTION_CHECK_SETTINGS,
   ACTION_SET_UP,
@@ -109,7 +109,7 @@ export default build<TimingVars, AppEventContext, TimingParams, TimingReturn>(
 
       {PROMPT_WHEN_TIMING('wait-timing-up')}
 
-      <IF<TimingVars> condition={({ vars }) => vars.action === ACTION_STOP}>
+      <IF<TimingVars> condition={({ vars }) => vars.action === ACTION_SKIP}>
         <THEN>
           <IF<TimingVars>
             condition={({ vars }) => vars.timingStatus === TimingStatus.Working}

@@ -23,7 +23,7 @@ import {
   ACTION_START,
   ACTION_CHECK_SETTINGS,
   ACTION_SET_UP,
-  ACTION_STOP,
+  ACTION_SKIP,
   ACTION_PAUSE,
   ACTION_OK,
   TimingStatus,
@@ -150,7 +150,7 @@ export default build<
             return <About />;
           case ACTION_CHECK_SETTINGS:
             return <SettingsPanel settings={settings} />;
-          case ACTION_STOP:
+          case ACTION_SKIP:
           case ACTION_PAUSE:
             return <p>It's not timing now 😉</p>;
           default:

@@ -7,7 +7,7 @@ import {
   ACTION_CHECK_SETTINGS,
   ACTION_SET_UP,
   ACTION_START,
-  ACTION_STOP,
+  ACTION_SKIP,
   ACTION_PAUSE,
   ACTION_TIME_UP,
   ACTION_OK,
@@ -25,7 +25,7 @@ export type PomodoroSettings = {
 
 export type AppActionType =
   | typeof ACTION_START
-  | typeof ACTION_STOP
+  | typeof ACTION_SKIP
   | typeof ACTION_PAUSE
   | typeof ACTION_TIME_UP
   | typeof ACTION_ABOUT

@@ -7,7 +7,7 @@ export const ACTION_START = 'start';
 export const ACTION_PAUSE = 'pause';
 
 /** Skip this timing phase */
-export const ACTION_STOP = 'stop';
+export const ACTION_SKIP = 'skip';
 
 /** Timing up */
 export const ACTION_TIME_UP = 'time_up';

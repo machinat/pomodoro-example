@@ -1,13 +1,13 @@
 import Machinat, { MachinatNode } from '@machinat/core';
 
-import { ACTION_PAUSE, ACTION_STOP } from '../constant';
+import { ACTION_PAUSE, ACTION_SKIP } from '../constant';
 import TwoButtonPanel from './TwoButtonPanel';
 
 type TimingPanelProps = {
   children: MachinatNode;
 };
 
-const STOP = 'Stop ⏹';
+const SKIP = 'Skip ⏹';
 const PAUSE = 'Pause ⏸️';
 
 const TimingPanel = ({ children }: TimingPanelProps) => {
@@ -15,8 +15,8 @@ const TimingPanel = ({ children }: TimingPanelProps) => {
     <TwoButtonPanel
       text1={PAUSE}
       action1={ACTION_PAUSE}
-      text2={STOP}
-      action2={ACTION_STOP}
+      text2={SKIP}
+      action2={ACTION_SKIP}
       makeLineAltText={(template) =>
         `${template.text}\n\nYou can tell me to "Pause" or "Start"`
       }
