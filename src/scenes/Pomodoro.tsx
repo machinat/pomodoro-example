@@ -128,7 +128,7 @@ export default build<PomodoroVars, AppEventContext, PomodoroParams, void, void>(
       </THEN>
     </IF>
 
-    {() => <p>Ok, let's begin!</p>}
+    {() => <p>OK, let's begin!</p>}
 
     {/* app event loop */}
     <WHILE<PomodoroVars> condition={() => true}>

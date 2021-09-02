@@ -154,7 +154,7 @@ export default build<
           case ACTION_PAUSE:
             return <p>It's not timing now 😉</p>;
           default:
-            return <p>Ok, tell me when yor're ready</p>;
+            return <p>OK, tell me when yor're ready</p>;
         }
       }}
 

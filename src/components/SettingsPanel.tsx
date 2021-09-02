@@ -12,7 +12,7 @@ const SettingsPanel = ({ settings }: SettingsPanelProps, { platform }) => {
     <TwoButtonPanel
       text1="Edit"
       action1={ACTION_SET_UP}
-      text2="Ok"
+      text2="OK"
       action2={ACTION_OK}
       makeLineAltText={(template) =>
         `${template.text}\n\nTell me "Edit" to change`
