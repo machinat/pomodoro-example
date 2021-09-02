@@ -62,7 +62,7 @@ export default build<PomodoroVars, AppEventContext, PomodoroParams, void, void>(
   <$<PomodoroVars>>
     {() => (
       <>
-        Hi, I'm a Pomodoro Technique Bot 🤖💛🍅
+        Hi, I'm a Pomodoro Timer Bot 🤖💛🍅
         <Pause />
       </>
     )}
