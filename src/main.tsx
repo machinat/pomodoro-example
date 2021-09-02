@@ -38,10 +38,12 @@ const main = (
                 let timezone: undefined | number;
 
                 if (event.platform === 'messenger' && event.user) {
-                  const profile = await messengerProfiler.getUserProfile(
-                    event.user
-                  );
-                  timezone = profile?.timezone;
+                  try {
+                    const profile = await messengerProfiler.getUserProfile(
+                      event.user
+                    );
+                    timezone = profile?.timezone;
+                  } catch {}
                 }
 
                 runtime = await scriptProcessor.start(channel, Pomodoro, {
