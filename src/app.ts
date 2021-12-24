@@ -1,23 +1,28 @@
 import Machinat from '@machinat/core';
 import HTTP from '@machinat/http';
 import Messenger from '@machinat/messenger';
+import MessengerAuthenticator from '@machinat/messenger/webview';
 import Line from '@machinat/line';
+import LineAuthenticator from '@machinat/line/webview';
 import Telegram from '@machinat/telegram';
+import TelegramAuthenticator from '@machinat/telegram/webview';
+import Webview from '@machinat/webview';
 import RedisState from '@machinat/redis-state';
 import { FileState } from '@machinat/local-state';
 import DialogFlow from '@machinat/dialogflow';
 import Script from '@machinat/script';
-import Pomodoro from './scenes/Pomodoro';
-import SetUp from './scenes/SetUp';
-import Starting from './scenes/Starting';
-import Timing from './scenes/Timing';
-import AskingTimezone from './scenes/AskingTimezone';
+import * as scenesScirpts from './scenes';
 import useIntent from './services/useIntent';
+import useSettings from './services/useSettings';
+import useUserProfile from './services/useUserProfile';
 import Timer from './services/Timer';
+import nextConfigs from '../webview/next.config.js';
+import { ServerDomain, LineLiffId } from './interface';
 
 const {
   // location
   PORT,
+  DOMAIN,
   NODE_ENV,
   // messenger
   MESSENGER_PAGE_ID,
@@ -29,6 +34,7 @@ const {
   LINE_CHANNEL_ID,
   LINE_ACCESS_TOKEN,
   LINE_CHANNEL_SECRET,
+  LINE_LIFF_ID,
   // telegram
   TELEGRAM_BOT_TOKEN,
   TELEGRAM_SECRET_PATH,
@@ -37,6 +43,8 @@ const {
   DIALOG_FLOW_PROJECT_ID,
   DIALOG_FLOW_CLIENT_EMAIL,
   DIALOG_FLOW_PRIVATE_KEY,
+  // webview
+  WEBVIEW_AUTH_SECRET,
   // redis
   REDIS_URL,
 } = process.env as Record<string, string>;
@@ -62,7 +70,7 @@ const app = Machinat.createApp({
         }),
 
     Script.initModule({
-      libs: [Pomodoro, SetUp, Starting, Timing, AskingTimezone],
+      libs: Object.values(scenesScirpts),
     }),
 
     DialogFlow.initModule({
@@ -101,10 +109,40 @@ const app = Machinat.createApp({
       channelId: LINE_CHANNEL_ID,
       accessToken: LINE_ACCESS_TOKEN,
       channelSecret: LINE_CHANNEL_SECRET,
+      liffChannelIds: [LINE_LIFF_ID.split('-', 1)[0]],
+    }),
+
+    Webview.initModule<
+      MessengerAuthenticator | TelegramAuthenticator | LineAuthenticator
+    >({
+      webviewHost: DOMAIN,
+      webviewPath: '/webview',
+      authSecret: WEBVIEW_AUTH_SECRET,
+
+      sameSite: 'none',
+      nextServerOptions: {
+        dev: DEV,
+        dir: './webview',
+        conf: nextConfigs,
+      },
     }),
   ],
 
-  services: [Timer, useIntent],
+  services: [
+    Timer,
+    useIntent,
+    useSettings,
+    useUserProfile,
+    {
+      provide: Webview.AuthenticatorList,
+      withProvider: MessengerAuthenticator,
+    },
+    { provide: Webview.AuthenticatorList, withProvider: TelegramAuthenticator },
+    { provide: Webview.AuthenticatorList, withProvider: LineAuthenticator },
+
+    { provide: ServerDomain, withValue: DOMAIN },
+    { provide: LineLiffId, withValue: LINE_LIFF_ID },
+  ],
 });
 
 export default app;

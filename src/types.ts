@@ -1,11 +1,27 @@
-import type BaseBot from '@machinat/core/base/Bot';
-import type { MessengerChat, MessengerEventContext } from '@machinat/messenger';
-import type { TelegramChat, TelegramEventContext } from '@machinat/telegram';
-import type { LineChat, LineEventContext } from '@machinat/line';
-import {
+import type { MachinatProfile } from '@machinat/core';
+import type {
+  MessengerChat,
+  MessengerUser,
+  MessengerEventContext,
+} from '@machinat/messenger';
+import type {
+  TelegramChat,
+  TelegramUser,
+  TelegramEventContext,
+} from '@machinat/telegram';
+import type { LineChat, LineUser, LineEventContext } from '@machinat/line';
+import type MessengerAuthenticator from '@machinat/messenger/webview';
+import type LineAuthenticator from '@machinat/line/webview';
+import type TelegramAuthenticator from '@machinat/telegram/webview';
+import type {
+  WebviewEventContext,
+  ConnectEventValue,
+  DisconnectEventValue,
+} from '@machinat/webview';
+import type {
   ACTION_ABOUT,
   ACTION_CHECK_SETTINGS,
-  ACTION_SET_UP,
+  ACTION_SETTINGS_UPDATED,
   ACTION_START,
   ACTION_SKIP,
   ACTION_PAUSE,
@@ -13,6 +29,8 @@ import {
   ACTION_OK,
   ACTION_NO,
   ACTION_UNKNOWN,
+  WEBVIEW_SETTINGS_PATH,
+  WEBVIEW_STATISTICS_PATH,
 } from './constant';
 
 export type PomodoroSettings = {
@@ -30,32 +48,93 @@ export type AppActionType =
   | typeof ACTION_TIME_UP
   | typeof ACTION_ABOUT
   | typeof ACTION_CHECK_SETTINGS
-  | typeof ACTION_SET_UP
+  | typeof ACTION_SETTINGS_UPDATED
   | typeof ACTION_OK
   | typeof ACTION_NO
   | typeof ACTION_UNKNOWN;
 
-export type AppChannel = MessengerChat | TelegramChat | LineChat;
+export type WebviewPath =
+  | typeof WEBVIEW_SETTINGS_PATH
+  | typeof WEBVIEW_STATISTICS_PATH;
 
-export type TimeUpEvent = {
-  platform: 'messenger' | 'telegram' | 'line';
-  category: 'timer';
-  type: 'time_up';
-  payload: null;
-  user: null;
-  channel: AppChannel;
-};
+export type AppChannel = MessengerChat | TelegramChat | LineChat;
+export type AppUser = MessengerUser | TelegramUser | LineUser;
 
 export type ChatEventContext =
   | MessengerEventContext
   | TelegramEventContext
   | LineEventContext;
 
-export type TimerEventContext = {
+export type AppTimeUpEvent = {
   platform: 'messenger' | 'telegram' | 'line';
-  event: TimeUpEvent;
-  metadata: { source: 'timer' };
-  bot: BaseBot;
+  category: 'app';
+  type: 'time_up';
+  payload: null;
+  user: null;
+  channel: AppChannel;
 };
 
-export type AppEventContext = ChatEventContext | TimerEventContext;
+export type AppSettingsUpdatedEvent = {
+  platform: 'messenger' | 'telegram' | 'line';
+  category: 'app';
+  type: 'settings_updated';
+  payload: { settings: PomodoroSettings };
+  user: AppUser;
+  channel: AppChannel;
+};
+
+export type AppEventContext =
+  | ChatEventContext
+  | {
+      platform: 'messenger' | 'telegram' | 'line';
+      event: AppTimeUpEvent | AppSettingsUpdatedEvent;
+    };
+
+export type AppEventIntent = {
+  type: AppActionType;
+  confidence: number;
+  payload: any;
+};
+
+export type WithIntent = {
+  intent: AppEventIntent;
+};
+
+export type PomodoroEventContext = (ChatEventContext | AppEventContext) &
+  WithIntent;
+
+export type PomodoroScriptYield = {
+  updateSettings?: Partial<PomodoroSettings>;
+  registerTimer?: Date;
+  cancelTimer?: Date;
+};
+
+export type UpdateSettingsAction = {
+  category: 'app';
+  type: 'update_settings';
+  payload: { settings: Partial<PomodoroSettings> };
+};
+
+export type WebEventContext = WebviewEventContext<
+  MessengerAuthenticator | TelegramAuthenticator | LineAuthenticator,
+  ConnectEventValue | DisconnectEventValue | UpdateSettingsAction
+>;
+
+export type WebAppData = {
+  settings: PomodoroSettings;
+  userProfile: null | MachinatProfile;
+};
+
+export type WebAppDataPush = {
+  category: 'app';
+  type: 'app_data';
+  payload: WebAppData;
+};
+
+export type WebSettingsUpdatedPush = {
+  category: 'app';
+  type: 'settings_updated';
+  payload: { settings: PomodoroSettings };
+};
+
+export type WebPushEvent = WebAppDataPush | WebSettingsUpdatedPush;

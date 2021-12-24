@@ -5,7 +5,7 @@ dist
 # Local Config
 .env
 .assets.toml
-.migrated.json
+.executed_migrations.json
 .state_storage
 
 # Logs

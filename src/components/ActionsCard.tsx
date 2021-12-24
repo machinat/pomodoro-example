@@ -5,26 +5,37 @@ import * as Line from '@machinat/line/components';
 import encodePostbackData from '../utils/encodePostbackData';
 import { AppActionType } from '../types';
 
-type OneButtonPanelProps = {
-  children: MachinatNode;
+type ActionButtonData = {
   text: string;
-  action: AppActionType;
+  type: AppActionType;
+};
+
+type ActionsCardProps = {
+  children: MachinatNode;
+  actions: ActionButtonData[];
   makeLineAltText: (template: Record<string, unknown>) => string;
 };
 
-const OneButtonPanel = (
-  { children, text, action, makeLineAltText }: OneButtonPanelProps,
+const encodeActionType = (type) => encodePostbackData({ action: type });
+
+/**
+ * This component use ReplyKeyboard in Telegram. If you don't need it, use the
+ * ButtonsCard component.
+ */
+const ActionsCard = (
+  { children, actions, makeLineAltText }: ActionsCardProps,
   { platform }
 ) => {
-  const actionData = encodePostbackData({ action });
-
   switch (platform) {
     case 'messenger':
       return (
         <Messenger.ButtonTemplate
-          buttons={
-            <Messenger.PostbackButton title={text} payload={actionData} />
-          }
+          buttons={actions.map((action) => (
+            <Messenger.PostbackButton
+              title={action.text}
+              payload={encodeActionType(action.type)}
+            />
+          ))}
         >
           {children}
         </Messenger.ButtonTemplate>
@@ -35,7 +46,11 @@ const OneButtonPanel = (
         <Telegram.Text
           replyMarkup={
             <Telegram.ReplyKeyboard resizeKeyboard>
-              <Telegram.TextReply text={text} />
+              <Telegram.KeyboardRow>
+                {actions.map((action) => (
+                  <Telegram.TextReply text={action.text} />
+                ))}
+              </Telegram.KeyboardRow>
             </Telegram.ReplyKeyboard>
           }
         >
@@ -47,13 +62,12 @@ const OneButtonPanel = (
       return (
         <Line.ButtonTemplate
           altText={makeLineAltText}
-          actions={
+          actions={actions.map((action) => (
             <Line.PostbackAction
-              label={text}
-              displayText={text}
-              data={actionData}
+              label={action.text}
+              data={encodeActionType(action.type)}
             />
-          }
+          ))}
         >
           {children}
         </Line.ButtonTemplate>
@@ -64,4 +78,4 @@ const OneButtonPanel = (
   }
 };
 
-export default OneButtonPanel;
+export default ActionsCard;

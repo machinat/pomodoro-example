@@ -1,39 +1,21 @@
-import ordinal from 'ordinal';
 import Machinat from '@machinat/core';
-import { makeContainer } from '@machinat/core/service';
 import { build } from '@machinat/script';
-import {
-  IF,
-  THEN,
-  EFFECT,
-  WHILE,
-  PROMPT,
-  CALL,
-  RETURN,
-} from '@machinat/script/keywords';
-import SettingsPanel from '../components/SettingsPanel';
-import About from '../components/About';
-import StartingPanel from '../components/StartingPanel';
-
-import useIntent from '../services/useIntent';
-import formatTime from '../utils/formatTime';
+import { EFFECT, WHILE, PROMPT, RETURN } from '@machinat/script/keywords';
+import ReplyBasicActions from '../components/ReplyBasicActions';
+import StartingCard from '../components/StartingCard';
 import currentDayId from '../utils/currentDayId';
 import {
-  ACTION_ABOUT,
   ACTION_START,
-  ACTION_CHECK_SETTINGS,
-  ACTION_SET_UP,
-  ACTION_SKIP,
   ACTION_PAUSE,
   ACTION_OK,
+  ACTION_NO,
   TimingStatus,
 } from '../constant';
 import type {
   PomodoroSettings,
-  AppActionType,
-  AppEventContext,
+  PomodoroEventContext,
+  AppEventIntent,
 } from '../types';
-import SetUp from './SetUp';
 
 type StartingParams = {
   settings: PomodoroSettings;
@@ -44,7 +26,7 @@ type StartingParams = {
 };
 
 type StartingVars = StartingParams & {
-  action: AppActionType;
+  intent: AppEventIntent;
   isDayChanged: boolean;
 };
 
@@ -61,12 +43,10 @@ const CHECK_DAY_CHANGE = () => (
       if (!isDayChanged) {
         return vars;
       }
-
       return {
         ...vars,
         dayId,
         isDayChanged: true,
-        action: ACTION_OK,
         pomodoroNum: 1,
         timingStatus: TimingStatus.Working,
         remainingTime: undefined,
@@ -77,7 +57,7 @@ const CHECK_DAY_CHANGE = () => (
 
 export default build<
   StartingVars,
-  AppEventContext,
+  PomodoroEventContext,
   StartingParams,
   StartingReturn
 >(
@@ -85,97 +65,59 @@ export default build<
     name: 'Starting',
     initVars: (params) => ({
       ...params,
-      action: ACTION_OK,
+      intent: { type: ACTION_OK, confidence: 1, payload: null },
       isDayChanged: false,
     }),
   },
   <>
     <WHILE<StartingVars>
-      condition={({ vars: { action } }) => action !== ACTION_START}
+      condition={({ vars: { intent } }) => intent.type !== ACTION_START}
     >
-      <IF<StartingVars> condition={({ vars }) => vars.action === ACTION_SET_UP}>
-        <THEN>
-          <CALL<StartingVars, typeof SetUp>
-            key="setting-up"
-            script={SetUp}
-            params={({ vars: { settings } }) => ({ settings })}
-            set={({ vars }, { settings }) => ({
-              ...vars,
-              settings,
-              action: ACTION_OK,
-            })}
-          />
-        </THEN>
-      </IF>
-
       {CHECK_DAY_CHANGE()}
-
       {({
-        vars: { action, settings, pomodoroNum, timingStatus, remainingTime },
+        vars: { intent, settings, pomodoroNum, timingStatus, remainingTime },
       }) => {
-        switch (action) {
-          case ACTION_OK:
-            return remainingTime ? (
-              <StartingPanel>
-                Continue{' '}
-                {timingStatus === TimingStatus.Working
-                  ? `${ordinal(pomodoroNum)} 🍅`
-                  : 'break time ☕'}
-                , {formatTime(remainingTime)} remaining.
-              </StartingPanel>
-            ) : timingStatus !== TimingStatus.Working ? (
-              <StartingPanel>
-                Take a{' '}
-                {timingStatus === TimingStatus.LongBreak
-                  ? settings.longBreakMins
-                  : settings.shortBreakMins}{' '}
-                min break ☕
-              </StartingPanel>
-            ) : pomodoroNum <= settings.pomodoroPerDay ? (
-              <StartingPanel>
-                Start your{' '}
-                {pomodoroNum === settings.pomodoroPerDay
-                  ? 'last'
-                  : ordinal(pomodoroNum)}{' '}
-                🍅 today.
-              </StartingPanel>
-            ) : (
-              <StartingPanel>
-                You have already finish your {settings.pomodoroPerDay} 🍅 target
-                today. Keep on {ordinal(pomodoroNum)} 🍅?
-              </StartingPanel>
-            );
-
-          case ACTION_ABOUT:
-            return <About />;
-          case ACTION_CHECK_SETTINGS:
-            return <SettingsPanel settings={settings} />;
-          case ACTION_SKIP:
-          case ACTION_PAUSE:
-            return <p>It's not timing now 😉</p>;
-          default:
-            return <p>OK, tell me when yor're ready</p>;
+        if (intent.type === ACTION_PAUSE) {
+          return <p>It's not timing now 😉</p>;
         }
+        if (intent.type === ACTION_NO) {
+          return <p>OK, tell me when yor're ready</p>;
+        }
+        return (
+          <ReplyBasicActions
+            intent={intent}
+            settings={settings}
+            defaultReply={
+              <StartingCard
+                settings={settings}
+                pomodoroNum={pomodoroNum}
+                timingStatus={timingStatus}
+                remainingTime={remainingTime}
+              />
+            }
+          />
+        );
       }}
 
-      <PROMPT<StartingVars, AppEventContext>
+      <PROMPT<StartingVars, PomodoroEventContext>
         key="wait-start"
-        set={makeContainer({ deps: [useIntent] })(
-          (getIntent) =>
-            async ({ vars }, { event }) => {
-              const { type: intentType } = await getIntent(event);
-
-              return {
-                ...vars,
-                action:
-                  intentType === ACTION_OK
-                    ? vars.action === ACTION_OK
-                      ? ACTION_START
-                      : ACTION_OK
-                    : intentType,
-              };
-            }
-        )}
+        set={async ({ vars }, { event, intent }) => {
+          return {
+            ...vars,
+            settings:
+              event.type === 'settings_updated'
+                ? event.payload.settings
+                : vars.settings,
+            intent:
+              vars.intent.type === ACTION_OK && intent.type === ACTION_OK
+                ? {
+                    type: ACTION_START,
+                    confidence: 1,
+                    payload: intent.payload,
+                  }
+                : intent,
+          };
+        }}
       />
 
       {CHECK_DAY_CHANGE()}

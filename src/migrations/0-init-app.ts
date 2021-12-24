@@ -21,6 +21,7 @@ export const up = makeContainer({
 })(async (messengerBot, telegramBot, lineBot) => {
   // setup page profile in Messenger
   await messengerBot.makeApiCall('POST', 'me/messenger_profile', {
+    whitelisted_domains: [ENTRY_URL],
     get_started: {
       payload: encodePostbackData({ action: ACTION_MESSENGER_GETTING_START }),
     },

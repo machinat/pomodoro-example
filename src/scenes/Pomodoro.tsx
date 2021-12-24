@@ -1,5 +1,4 @@
 import Machinat from '@machinat/core';
-import { makeContainer } from '@machinat/core/service';
 import { build } from '@machinat/script';
 import {
   $,
@@ -10,59 +9,63 @@ import {
   CALL,
   EFFECT,
 } from '@machinat/script/keywords';
-import SettingsPanel from '../components/SettingsPanel';
+import SettingsCard from '../components/SettingsCard';
 import Pause from '../components/Pause';
-import Timer from '../services/Timer';
-import useIntent from '../services/useIntent';
 import currentDayId from '../utils/currentDayId';
-import { ACTION_OK, ACTION_SET_UP, TimingStatus } from '../constant';
+import {
+  ACTION_UNKNOWN,
+  ACTION_SETTINGS_UPDATED,
+  TimingStatus,
+} from '../constant';
 import type {
   PomodoroSettings,
-  AppActionType,
-  AppEventContext,
+  PomodoroEventContext,
+  PomodoroScriptYield,
+  AppEventIntent,
 } from '../types';
 import Starting from './Starting';
 import Timing from './Timing';
-import SetUp from './SetUp';
 import AskingTimezone from './AskingTimezone';
 
 type PomodoroParams = {
-  timezone?: number;
+  settings: PomodoroSettings;
 };
 
-type PomodoroVars = {
-  settings: PomodoroSettings;
+type PomodoroVars = PomodoroParams & {
   pomodoroNum: number;
   timingStatus: TimingStatus;
-  action: AppActionType;
+  intent: AppEventIntent;
   dayId: string;
   remainingTime: undefined | number;
   registerTimerAt: Date;
+  shouldSaveTz: boolean;
 };
 
-export default build<PomodoroVars, AppEventContext, PomodoroParams, void, void>(
+export default build<
+  PomodoroVars,
+  PomodoroEventContext,
+  PomodoroParams,
+  void,
+  PomodoroScriptYield
+>(
   {
     name: 'Pomodoro',
-    initVars: ({ timezone }) => ({
-      settings: {
-        workingMins: 25,
-        shortBreakMins: 5,
-        longBreakMins: 30,
-        pomodoroPerDay: 12,
-        timezone: timezone || 0,
-      },
+    initVars: ({ settings }) => ({
+      settings,
       pomodoroNum: 1,
-      action: ACTION_OK,
+      intent: { type: ACTION_UNKNOWN, confidence: 0, payload: null },
       remainingTime: undefined,
       timingStatus: TimingStatus.Working,
       registerTimerAt: new Date(0),
       dayId: currentDayId(0),
+      shouldSaveTz: false,
     }),
   },
   <$<PomodoroVars>>
     {() => (
       <>
-        Hi, I'm a Pomodoro Timer Bot 🤖💛🍅
+        <p>Hello! 🍅</p>
+        <p>I'm a Pomodoro Timer Bot 🤖</p>
         <Pause />
       </>
     )}
@@ -75,60 +78,82 @@ export default build<PomodoroVars, AppEventContext, PomodoroParams, void, void>(
       <THEN>
         {() => (
           <>
-            I need to know which timezone your are in for counting 🍅
-            <Pause time={4000} />
+            I need to know your timezone for counting 🍅
+            <Pause />
           </>
         )}
-
         <CALL<PomodoroVars, typeof AskingTimezone>
           script={AskingTimezone}
           key="ask-timezone"
           params={({ vars: { settings } }) => ({ timezone: settings.timezone })}
-          set={({ vars }, { timezone }) => ({
-            ...vars,
-            settings: { ...vars.settings, timezone },
-          })}
+          set={({ vars }, { timezone }) => {
+            const { settings } = vars;
+            return {
+              ...vars,
+              settings: {
+                ...settings,
+                timezone: timezone || settings.timezone,
+              },
+              shouldSaveTz:
+                timezone !== undefined && timezone !== settings.timezone,
+            };
+          }}
         />
+
+        <IF condition={({ vars }) => vars.shouldSaveTz}>
+          <THEN>
+            <EFFECT<PomodoroVars, PomodoroScriptYield>
+              yield={({ vars }, prev) => ({
+                ...prev,
+                updateSettings: {
+                  ...prev?.updateSettings,
+                  timezone: vars.settings.timezone,
+                },
+              })}
+            />
+          </THEN>
+        </IF>
       </THEN>
     </IF>
 
     {({ vars }) => (
       <>
-        Please confirm your settings for the first time
-        <SettingsPanel settings={vars.settings} />
+        <p>Please confirm your settings ⚙️</p>
+        <Pause />
+        <SettingsCard
+          settings={vars.settings}
+          noTitle
+          withEditButton
+          withOkButton
+        />
       </>
     )}
 
-    <PROMPT<PomodoroVars, AppEventContext>
+    <PROMPT<PomodoroVars, PomodoroEventContext>
       key="confirm-settings"
-      set={makeContainer({ deps: [useIntent] })(
-        (getIntent) =>
-          async ({ vars }, { event }) => {
-            const intent = await getIntent(event);
-            return {
-              ...vars,
-              action: intent.type === ACTION_SET_UP ? ACTION_SET_UP : ACTION_OK,
-            };
-          }
-      )}
+      set={async ({ vars }, { event, intent }) =>
+        event.type === 'settings_updated'
+          ? { ...vars, intent, settings: event.payload.settings }
+          : { ...vars, intent }
+      }
     />
 
-    <IF<PomodoroVars> condition={({ vars }) => vars.action === ACTION_SET_UP}>
-      <THEN>
-        <CALL<PomodoroVars, typeof SetUp>
-          script={SetUp}
-          params={({ vars: { settings } }) => ({ settings })}
-          set={({ vars }, { settings }) => ({
-            ...vars,
-            settings,
-            dayId: currentDayId(settings.timezone),
-          })}
-          key="initial-setup"
-        />
-      </THEN>
-    </IF>
-
-    {() => <p>OK, let's begin!</p>}
+    {({ vars: { intent, settings } }) => {
+      const isUpdated = intent.type === ACTION_SETTINGS_UPDATED;
+      return (
+        <>
+          {isUpdated && (
+            <>
+              <p>Settings updated ⚙️</p>
+              <SettingsCard settings={settings} noTitle />
+              <Pause />
+            </>
+          )}
+          <Pause />
+          <p>👍 Let's begin!</p>
+        </>
+      );
+    }}
 
     {/* app event loop */}
     <WHILE<PomodoroVars> condition={() => true}>
@@ -167,14 +192,11 @@ export default build<PomodoroVars, AppEventContext, PomodoroParams, void, void>(
         }}
       />
 
-      <EFFECT<PomodoroVars>
-        do={makeContainer({
-          deps: [Timer],
-        })(
-          (timer) =>
-            ({ vars, channel }) =>
-              timer.registerTimer(channel, vars.registerTimerAt)
-        )}
+      <EFFECT<PomodoroVars, PomodoroScriptYield>
+        yield={({ vars }, prev) => ({
+          ...prev,
+          registerTimer: vars.registerTimerAt,
+        })}
       />
 
       <CALL<PomodoroVars, typeof Timing>
@@ -216,14 +238,8 @@ export default build<PomodoroVars, AppEventContext, PomodoroParams, void, void>(
         }}
       />
 
-      <EFFECT<PomodoroVars>
-        do={makeContainer({
-          deps: [Timer],
-        })(
-          (timer) =>
-            ({ vars, channel }) =>
-              timer.cancelTimer(channel, vars.registerTimerAt)
-        )}
+      <EFFECT<PomodoroVars, PomodoroScriptYield>
+        yield={({ vars }) => ({ cancelTimer: vars.registerTimerAt })}
       />
     </WHILE>
   </$>

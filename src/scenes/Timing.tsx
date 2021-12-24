@@ -1,40 +1,22 @@
 import ordinal from 'ordinal';
 import Machinat from '@machinat/core';
-import { makeContainer } from '@machinat/core/service';
 import { build } from '@machinat/script';
+import { $, IF, THEN, WHILE, PROMPT, RETURN } from '@machinat/script/keywords';
+import TimingCard from '../components/TimingCard';
+import StopingCard from '../components/StopingCard';
+import ReplyBasicActions from '../components/ReplyBasicActions';
 import {
-  $,
-  IF,
-  THEN,
-  EFFECT,
-  WHILE,
-  PROMPT,
-  CALL,
-  RETURN,
-} from '@machinat/script/keywords';
-import TimingPanel from '../components/TimingPanel';
-import StopingPanel from '../components/StopingPanel';
-import SettingsPanel from '../components/SettingsPanel';
-import About from '../components/About';
-
-import useIntent from '../services/useIntent';
-import formatTime from '../utils/formatTime';
-import {
-  ACTION_ABOUT,
   ACTION_SKIP,
   ACTION_PAUSE,
-  ACTION_CHECK_SETTINGS,
-  ACTION_SET_UP,
   ACTION_TIME_UP,
   ACTION_OK,
   TimingStatus,
 } from '../constant';
 import type {
+  PomodoroEventContext,
+  AppEventIntent,
   PomodoroSettings,
-  AppActionType,
-  AppEventContext,
 } from '../types';
-import SetUp from './SetUp';
 
 type TimingParams = {
   time: number;
@@ -46,76 +28,80 @@ type TimingParams = {
 type TimingVars = TimingParams & {
   beginAt: Date;
   pauseAt: null | Date;
-  action: AppActionType;
+  intent: AppEventIntent;
 };
 
 type TimingReturn = {
   settings: PomodoroSettings;
-  remainingTime: undefined | number;
+  remainingTime: number;
 };
 
 const PROMPT_WHEN_TIMING = (key: string) => (
-  <PROMPT<TimingVars, AppEventContext>
+  <PROMPT<TimingVars, PomodoroEventContext>
     key={key}
-    set={makeContainer({ deps: [useIntent] })(
-      (getIntent) =>
-        async ({ vars }, { event }) => {
-          const { type: intentType } = await getIntent(event);
-          const pauseAt = intentType === ACTION_PAUSE ? new Date() : null;
-          return { ...vars, pauseAt, action: intentType };
-        }
-    )}
+    set={async ({ vars }, { event, intent }) => {
+      const pauseAt = intent.type === ACTION_PAUSE ? new Date() : null;
+      const settings =
+        event.type === 'settings_updated'
+          ? event.payload.settings
+          : vars.settings;
+      return { ...vars, pauseAt, intent, settings };
+    }}
   />
 );
 
-export default build<TimingVars, AppEventContext, TimingParams, TimingReturn>(
+export default build<
+  TimingVars,
+  PomodoroEventContext,
+  TimingParams,
+  TimingReturn
+>(
   {
     name: 'Timing',
     initVars: (params) => ({
       ...params,
       beginAt: new Date(),
       pauseAt: null,
-      action: ACTION_OK,
+      intent: { type: 'unknown', confidence: 0, payload: null },
     }),
   },
   <$<TimingVars>>
     <WHILE<TimingVars>
-      condition={({ vars: { action, time, beginAt } }) =>
-        action !== ACTION_TIME_UP &&
-        action !== ACTION_PAUSE &&
+      condition={({ vars: { intent, time, beginAt } }) =>
+        intent.type !== ACTION_TIME_UP &&
+        intent.type !== ACTION_PAUSE &&
         time > Date.now() - beginAt.getTime()
       }
     >
       {({
-        vars: { action, time, timingStatus, settings, pomodoroNum, beginAt },
+        vars: { settings, intent, time, timingStatus, pomodoroNum, beginAt },
       }) => {
-        switch (action) {
-          case ACTION_ABOUT:
-            return <About />;
-          case ACTION_CHECK_SETTINGS:
-            return <SettingsPanel settings={settings} />;
-          default:
-            return (
-              <TimingPanel>
-                {timingStatus === TimingStatus.Working
-                  ? `${ordinal(pomodoroNum)} 🍅`
-                  : 'Break time ☕'}
-                , {formatTime(time - (Date.now() - beginAt.getTime()))}{' '}
-                remaining.
-              </TimingPanel>
-            );
-        }
+        return (
+          <ReplyBasicActions
+            intent={intent}
+            settings={settings}
+            defaultReply={
+              <TimingCard
+                timingStatus={timingStatus}
+                pomodoroNum={pomodoroNum}
+                remainingTime={time - (Date.now() - beginAt.getTime())}
+              />
+            }
+          />
+        );
       }}
 
       {PROMPT_WHEN_TIMING('wait-timing-up')}
 
-      <IF<TimingVars> condition={({ vars }) => vars.action === ACTION_SKIP}>
+      <IF<TimingVars>
+        condition={({ vars }) => vars.intent.type === ACTION_SKIP}
+      >
         <THEN>
           <IF<TimingVars>
             condition={({ vars }) => vars.timingStatus === TimingStatus.Working}
           >
             <THEN>
-              {() => <StopingPanel>Skip current pomodoro?</StopingPanel>}
+              {() => <StopingCard>Skip current 🍅?</StopingCard>}
               {PROMPT_WHEN_TIMING('ask-should-skip')}
             </THEN>
           </IF>
@@ -123,41 +109,26 @@ export default build<TimingVars, AppEventContext, TimingParams, TimingReturn>(
           <IF<TimingVars>
             condition={({ vars }) =>
               vars.timingStatus !== TimingStatus.Working ||
-              vars.action === ACTION_OK
+              vars.intent.type === ACTION_OK
             }
           >
             <THEN>
               {({ vars: { timingStatus, pomodoroNum } }) =>
                 timingStatus === TimingStatus.Working ? (
-                  <p>{ordinal(pomodoroNum)} 🍅 skipped.</p>
+                  <p>{ordinal(pomodoroNum)} 🍅 skipped</p>
                 ) : (
-                  <p>Break time skipped.</p>
+                  <p>Break time skipped</p>
                 )
               }
 
               <RETURN<TimingVars, TimingReturn>
                 value={({ vars: { settings } }) => ({
                   settings,
-                  remainingTime: undefined,
+                  remainingTime: 0,
                 })}
               />
             </THEN>
           </IF>
-        </THEN>
-      </IF>
-
-      <IF<TimingVars> condition={({ vars }) => vars.action === ACTION_SET_UP}>
-        <THEN>
-          <CALL<TimingVars, typeof SetUp>
-            script={SetUp}
-            params={({ vars: { settings } }) => ({ settings })}
-            set={({ vars }, { settings }) => ({ ...vars, settings })}
-            key="setting-up"
-          />
-
-          <EFFECT<TimingVars>
-            set={({ vars }) => ({ ...vars, actions: ACTION_OK })}
-          />
         </THEN>
       </IF>
     </WHILE>
@@ -165,7 +136,7 @@ export default build<TimingVars, AppEventContext, TimingParams, TimingReturn>(
     {({ vars: { timingStatus, pomodoroNum, pauseAt } }) =>
       timingStatus === TimingStatus.Working ? (
         <p>
-          {ordinal(pomodoroNum)} 🍅 {pauseAt ? 'paused' : 'finished'}!
+          {ordinal(pomodoroNum)} 🍅 {pauseAt ? 'paused' : 'finished'}
         </p>
       ) : (
         <p>Break time {pauseAt ? 'paused' : 'is up'}!</p>
@@ -173,11 +144,11 @@ export default build<TimingVars, AppEventContext, TimingParams, TimingReturn>(
     }
 
     <RETURN<TimingVars, TimingReturn>
-      value={({ vars: { beginAt, pauseAt, settings, time } }) => ({
+      value={({ vars: { beginAt, pauseAt, time, settings } }) => ({
         settings,
         remainingTime: pauseAt
           ? time - (pauseAt.getTime() - beginAt.getTime())
-          : undefined,
+          : 0,
       })}
     />
   </$>

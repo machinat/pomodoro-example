@@ -1,33 +1,34 @@
 import Machinat from '@machinat/core';
 import { build } from '@machinat/script';
-import { $, IF, THEN, WHILE, PROMPT, RETURN } from '@machinat/script/keywords';
+import { PROMPT, RETURN } from '@machinat/script/keywords';
 import RequestLocationIfPossible from '../components/RequestLocationIfPossible';
-import type { AppEventContext } from '../types';
+import type { PomodoroEventContext } from '../types';
 
-type AskingTimezoneData = {
-  timezone: number;
+type AskingTimezoneReturn = {
+  timezone: undefined | number;
 };
 
 type AskingTimezoneVars = {
-  timezone: number;
-  answerSlot?: number;
+  answer: string;
+  timezone: undefined | number;
+  isValid: boolean;
 };
 
 export default build<
   AskingTimezoneVars,
-  AppEventContext,
-  AskingTimezoneData,
-  AskingTimezoneData
+  PomodoroEventContext,
+  {},
+  AskingTimezoneReturn
 >(
   {
     name: 'AskingTimezone',
-    initVars: ({ timezone }) => ({ timezone }),
+    initVars: () => ({ answer: '', timezone: 0, isValid: false }),
   },
-  <$>
+  <>
     {({ platform }) => {
-      const askingTz = 'Enter your timezone in number:';
+      const askingTz = 'Please enter your timezone in number';
       const askingTzOrLocaction =
-        'Enter your timezone in number or send me your location:';
+        'Please send me your location or enter your timezone in number';
 
       return (
         <RequestLocationIfPossible makeLineAltText={() => askingTz}>
@@ -38,37 +39,49 @@ export default build<
       );
     }}
 
-    <WHILE<AskingTimezoneVars>
-      condition={({ vars: { answerSlot } }) =>
-        !answerSlot ||
-        !Number.isSafeInteger(answerSlot) ||
-        (answerSlot > 14 && answerSlot < -12)
-      }
-    >
-      <IF<AskingTimezoneVars>
-        condition={({ vars }) => vars.answerSlot !== undefined}
-      >
-        <THEN>{() => 'Please give me a valid timezone number'}</THEN>
-      </IF>
+    <PROMPT<AskingTimezoneVars, PomodoroEventContext>
+      key="ask"
+      set={(_, { event }) => {
+        if (event.type === 'location') {
+          const tz = Math.floor(event.longitude / 15 + 0.5);
+          return {
+            answer: `${tz >= 0 ? '+' : ''}${tz}`,
+            timezone: tz,
+            isValid: true,
+          };
+        }
 
-      <PROMPT<AskingTimezoneVars, AppEventContext>
-        key="ask"
-        set={({ vars: { timezone } }, { event }) => ({
-          timezone,
-          answerSlot:
-            event.type === 'location'
-              ? Math.floor(event.longitude / 15 + 0.5)
-              : event.type !== 'text'
-              ? undefined
-              : event.text.trim() === '-'
-              ? timezone
-              : Number(event.text),
-        })}
-      />
-    </WHILE>
+        if (event.type === 'text') {
+          const answer = event.text;
+          const matchTz = answer.match(/([\+-]?)\s*([0-9]{2})/);
 
-    <RETURN<AskingTimezoneVars, AskingTimezoneData>
-      value={({ vars }) => ({ timezone: vars.answerSlot as number })}
+          if (matchTz) {
+            const [, sign, num] = matchTz;
+            const tz = Number(sign + num);
+
+            if (tz <= 12 && tz >= -12) {
+              return { answer, timezone: tz, isValid: true };
+            }
+            return { answer, timezone: undefined, isValid: false };
+          }
+        }
+
+        return {
+          answer: `[ ${event.type} ]`,
+          timezone: undefined,
+          isValid: false,
+        };
+      }}
     />
-  </$>
+
+    {({ vars }) =>
+      vars.isValid ? null : (
+        <p>{vars.answer} is not a valid timezone. You can set it later when</p>
+      )
+    }
+
+    <RETURN<AskingTimezoneVars, AskingTimezoneReturn>
+      value={({ vars }) => ({ timezone: vars.timezone })}
+    />
+  </>
 );

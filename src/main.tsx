@@ -2,31 +2,99 @@ import Machinat from '@machinat/core';
 import { makeContainer } from '@machinat/core/service';
 import Script from '@machinat/script';
 import { merge, Stream } from '@machinat/stream';
-import { filter, tap } from '@machinat/stream/operators';
-import Messenger, { MessengerEventContext } from '@machinat/messenger';
-import { MarkSeen } from '@machinat/messenger/components';
+import { filter, tap, map } from '@machinat/stream/operators';
+import Messenger from '@machinat/messenger';
 import { AnswerCallbackQuery } from '@machinat/telegram/components';
-import Pomodoro from './scenes/Pomodoro';
+import * as Scenes from './scenes';
+import Timer from './services/Timer';
+import useIntent from './services/useIntent';
+import useSettings from './services/useSettings';
+import useUserProfile from './services/useUserProfile';
 import type {
   ChatEventContext,
-  TimerEventContext,
+  WebEventContext,
   AppEventContext,
+  PomodoroEventContext,
 } from './types';
 
-const main = (
-  chat$: Stream<ChatEventContext>,
-  timer$: Stream<TimerEventContext>
-): void => {
-  const event$ = merge<AppEventContext>(chat$, timer$);
+type Scenes = typeof Scenes;
 
-  event$
+const main = (
+  event$: Stream<ChatEventContext | WebEventContext>,
+  timer$: Stream<AppEventContext>
+): void => {
+  const webview$ = event$.pipe(
+    filter((ctx): ctx is WebEventContext => ctx.platform === 'webview')
+  );
+
+  // handle settings updates from webview
+  const settingsUpdate$ = webview$.pipe(
+    filter(
+      (ctx): ctx is WebEventContext & { event: { type: 'update_settings' } } =>
+        ctx.event.type === 'update_settings'
+    ),
+    map(
+      makeContainer({ deps: [useSettings] })(
+        (fetchSettings) =>
+          async ({ event: { payload, channel }, metadata: { auth }, bot }) => {
+            const newSettings = await fetchSettings(
+              auth.channel,
+              payload.settings
+            );
+            await bot.send(channel, {
+              category: 'app',
+              type: 'settings_updated',
+              payload: { settings: newSettings },
+            });
+            return {
+              platform: auth.platform,
+              event: {
+                platform: auth.platform,
+                category: 'app',
+                type: 'settings_updated',
+                payload: { settings: newSettings },
+                channel: auth.channel,
+                user: auth.user,
+              },
+            };
+          }
+      )
+    )
+  );
+
+  const appEvent$ = merge(settingsUpdate$, timer$);
+  const chat$ = event$.pipe(
+    filter((ctx): ctx is ChatEventContext => ctx.platform !== 'webview')
+  );
+
+  const pomodoroEvent$ = merge(chat$, appEvent$).pipe(
+    map<AppEventContext, PomodoroEventContext>(
+      makeContainer({ deps: [useIntent] })((getIntent) => async (ctx) => {
+        const intent = await getIntent(ctx.event);
+        return { ...ctx, intent };
+      })
+    )
+  );
+  pomodoroEvent$
     .pipe(
-      tap<AppEventContext>(
+      tap(
         makeContainer({
-          deps: [Machinat.Bot, Script.Processor, Messenger.Profiler] as const,
+          deps: [
+            Machinat.Bot,
+            Script.Processor,
+            Messenger.Profiler,
+            Timer,
+            useSettings,
+          ] as const,
         })(
-          (bot, scriptProcessor, messengerProfiler) =>
-            async (context: AppEventContext) => {
+          (
+              bot,
+              scriptProcessor: Script.Processor<Scenes[keyof Scenes]>,
+              messengerProfiler,
+              timer,
+              fetchSettings
+            ) =>
+            async (context) => {
               const { event } = context;
               const { channel } = event;
               if (!channel) {
@@ -36,8 +104,7 @@ const main = (
               let runtime = await scriptProcessor.continue(channel, context);
               if (!runtime) {
                 let timezone: undefined | number;
-
-                if (event.platform === 'messenger' && event.user) {
+                if (event.user?.platform === 'messenger') {
                   try {
                     const profile = await messengerProfiler.getUserProfile(
                       event.user
@@ -46,9 +113,33 @@ const main = (
                   } catch {}
                 }
 
-                runtime = await scriptProcessor.start(channel, Pomodoro, {
-                  params: { timezone },
-                });
+                const settings = await fetchSettings(
+                  channel,
+                  timezone !== undefined ? { timezone } : null
+                );
+
+                runtime = await scriptProcessor.start(
+                  channel,
+                  Scenes.Pomodoro,
+                  {
+                    params: { settings },
+                  }
+                );
+              }
+
+              const { yieldValue } = runtime;
+              if (yieldValue) {
+                await Promise.all([
+                  yieldValue.updateSettings
+                    ? fetchSettings(channel, yieldValue.updateSettings)
+                    : null,
+                  yieldValue.registerTimer
+                    ? timer.registerTimer(channel, yieldValue.registerTimer)
+                    : null,
+                  yieldValue.cancelTimer
+                    ? timer.cancelTimer(channel, yieldValue.cancelTimer)
+                    : null,
+                ]);
               }
 
               await bot.render(channel, runtime.output());
@@ -58,21 +149,33 @@ const main = (
     )
     .catch(console.error);
 
-  chat$
-    .pipe(
-      filter(
-        (
-          ctx
-        ): ctx is MessengerEventContext & { event: { category: 'message' } } =>
-          ctx.platform === 'messenger' && ctx.event.category === 'message'
-      ),
-      tap(async ({ reply }) => {
-        await reply(<MarkSeen />);
-      })
-    )
-    .catch(console.error);
+  // push web app data when connect
+  webview$.pipe(
+    filter(
+      (ctx): ctx is WebEventContext & { event: { type: 'connect' } } =>
+        ctx.event.type === 'connect'
+    ),
+    tap(
+      makeContainer({ deps: [useSettings, useUserProfile] as const })(
+        (fetchSettings, getUserProfile) =>
+          async ({ bot, event, metadata: { auth } }) => {
+            const [settings, userProfile] = await Promise.all([
+              fetchSettings(auth.channel, null),
+              getUserProfile(auth.user),
+            ]);
 
-  chat$
+            await bot.send(event.channel, {
+              category: 'app',
+              type: 'app_data',
+              payload: { settings, userProfile },
+            });
+          }
+      )
+    )
+  );
+
+  // answer callback_query event in Telegram
+  event$
     .pipe(
       filter(
         (
