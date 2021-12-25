@@ -13,6 +13,7 @@ import DialogFlow from '@machinat/dialogflow';
 import Script from '@machinat/script';
 import * as scenesScirpts from './scenes';
 import useIntent from './services/useIntent';
+import useAppData from './services/useAppData';
 import useSettings from './services/useSettings';
 import useUserProfile from './services/useUserProfile';
 import Timer from './services/Timer';
@@ -131,6 +132,7 @@ const app = Machinat.createApp({
   services: [
     Timer,
     useIntent,
+    useAppData,
     useSettings,
     useUserProfile,
     {

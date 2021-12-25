@@ -9,24 +9,25 @@ import {
   ACTION_PAUSE,
   ACTION_OK,
   ACTION_NO,
-  TimingStatus,
+  TimingPhase,
 } from '../constant';
 import type {
   PomodoroSettings,
   PomodoroEventContext,
-  AppEventIntent,
+  AppActionType,
+  AppChannel,
 } from '../types';
 
 type StartingParams = {
   settings: PomodoroSettings;
-  timingStatus: TimingStatus;
+  phase: TimingPhase;
   remainingTime?: number;
   pomodoroNum: number;
   dayId: string;
 };
 
 type StartingVars = StartingParams & {
-  intent: AppEventIntent;
+  action: AppActionType;
   isDayChanged: boolean;
 };
 
@@ -48,7 +49,7 @@ const CHECK_DAY_CHANGE = () => (
         dayId,
         isDayChanged: true,
         pomodoroNum: 1,
-        timingStatus: TimingStatus.Working,
+        phase: TimingPhase.Working,
         remainingTime: undefined,
       };
     }}
@@ -65,33 +66,35 @@ export default build<
     name: 'Starting',
     initVars: (params) => ({
       ...params,
-      intent: { type: ACTION_OK, confidence: 1, payload: null },
+      action: ACTION_OK,
       isDayChanged: false,
     }),
   },
   <>
     <WHILE<StartingVars>
-      condition={({ vars: { intent } }) => intent.type !== ACTION_START}
+      condition={({ vars: { action } }) => action !== ACTION_START}
     >
       {CHECK_DAY_CHANGE()}
       {({
-        vars: { intent, settings, pomodoroNum, timingStatus, remainingTime },
+        channel,
+        vars: { action, settings, pomodoroNum, phase, remainingTime },
       }) => {
-        if (intent.type === ACTION_PAUSE) {
+        if (action === ACTION_PAUSE) {
           return <p>It's not timing now 😉</p>;
         }
-        if (intent.type === ACTION_NO) {
+        if (action === ACTION_NO) {
           return <p>OK, tell me when yor're ready</p>;
         }
         return (
           <ReplyBasicActions
-            intent={intent}
+            channel={channel as AppChannel}
+            action={action}
             settings={settings}
             defaultReply={
               <StartingCard
                 settings={settings}
                 pomodoroNum={pomodoroNum}
-                timingStatus={timingStatus}
+                timingPhase={phase}
                 remainingTime={remainingTime}
               />
             }
@@ -108,14 +111,10 @@ export default build<
               event.type === 'settings_updated'
                 ? event.payload.settings
                 : vars.settings,
-            intent:
-              vars.intent.type === ACTION_OK && intent.type === ACTION_OK
-                ? {
-                    type: ACTION_START,
-                    confidence: 1,
-                    payload: intent.payload,
-                  }
-                : intent,
+            action:
+              vars.action === ACTION_OK && intent.type === ACTION_OK
+                ? ACTION_START
+                : intent.type,
           };
         }}
       />

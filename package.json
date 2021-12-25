@@ -4,18 +4,21 @@
   "scripts": {
     "clean": "rm -rf ./lib",
     "migrate": "per-env",
-    "migrate:development": "dotenv ts-node ./src/cli/migrate.ts",
+    "migrate:development": "dotenv -- ts-node ./src/cli/migrate.ts",
     "migrate:production": "node ./lib/cli/migrate.js",
     "build": "npm run clean && npm run build:src && npm run build:webview",
     "build:src": "tsc",
-    "build:webview": "dotenv next build ./webview",
+    "build:webview": "dotenv -- next build ./webview",
     "start": "per-env",
-    "start:development": "dotenv ts-node ./src/index.ts",
+    "start:development": "dotenv -- ts-node ./src/index.ts",
     "start:production": "node ./lib/index.js",
-    "dev": "dotenv ts-node ./src/cli/dev.ts"
+    "dev": "dotenv -- ts-node ./src/cli/dev.ts"
   },
   "license": "MIT",
   "dependencies": {
+    "@devexpress/dx-react-core": "^2.7.6",
+    "@devexpress/dx-react-scheduler": "^2.7.6",
+    "@devexpress/dx-react-scheduler-material-ui": "^2.7.6",
     "@emotion/react": "^11.5.0",
     "@emotion/styled": "^11.3.0",
     "@machinat/core": "^0.5.0-beta.7",

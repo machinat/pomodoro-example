@@ -1,6 +1,6 @@
 import Machinat, { MachinatNode } from '@machinat/core';
 import { ACTION_OK, ACTION_NO } from '../constant';
-import ButtonsCard from './ButtonsCard';
+import ActionsCard from './ActionsCard';
 
 type StopingCardProps = {
   children: MachinatNode;
@@ -8,15 +8,15 @@ type StopingCardProps = {
 
 const StopingCard = ({ children }: StopingCardProps) => {
   return (
-    <ButtonsCard
-      buttons={[
-        { type: 'action', text: 'Yes', action: ACTION_OK },
-        { type: 'action', text: 'No', action: ACTION_NO },
+    <ActionsCard
+      actions={[
+        { text: 'Yes', type: ACTION_OK },
+        { text: 'No', type: ACTION_NO },
       ]}
       makeLineAltText={(template) => template.text as string}
     >
       {children}
-    </ButtonsCard>
+    </ActionsCard>
   );
 };
 

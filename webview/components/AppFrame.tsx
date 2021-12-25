@@ -1,5 +1,6 @@
 import React, { ReactNode } from 'react';
 import { useRouter } from 'next/router';
+import Head from 'next/head';
 import { MachinatNode, MachinatProfile } from '@machinat/core';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
@@ -14,16 +15,25 @@ import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import Divider from '@mui/material/Divider';
+import Backdrop from '@mui/material/Backdrop';
+import CircularProgress from '@mui/material/CircularProgress';
 import SettingsIcon from '@mui/icons-material/Settings';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import PersonIcon from '@mui/icons-material/Person';
 
 type AppFrameProp = {
   children: ReactNode;
+  title: string;
   userProfile?: null | MachinatProfile;
+  isProcessing?: boolean;
 };
 
-const AppFrame = ({ children, userProfile }: AppFrameProp) => {
+const AppFrame = ({
+  children,
+  title,
+  userProfile,
+  isProcessing,
+}: AppFrameProp) => {
   const [isMenuOpen, setMenuOpen] = React.useState(false);
   const handleMenuClose = () => setMenuOpen(false);
 
@@ -37,6 +47,17 @@ const AppFrame = ({ children, userProfile }: AppFrameProp) => {
           background-color: #eee;
         }
       `}</style>
+
+      <Head>
+        <title>Pomodoro Example</title>
+      </Head>
+
+      <Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={!!isProcessing}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
 
       <Drawer open={isMenuOpen} onClose={handleMenuClose}>
         <Box
@@ -78,7 +99,7 @@ const AppFrame = ({ children, userProfile }: AppFrameProp) => {
         </Box>
       </Drawer>
 
-      <AppBar color="default" position="static">
+      <AppBar color="default" position="sticky">
         <Toolbar>
           <IconButton
             size="large"
@@ -91,11 +112,7 @@ const AppFrame = ({ children, userProfile }: AppFrameProp) => {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            {router.pathname === '/statistics'
-              ? 'Pomodoro Statistics'
-              : router.pathname === '/settings'
-              ? 'Pomodoro Settings'
-              : 'Pomodoro'}
+            {title}
           </Typography>
           {userProfile ? (
             <Avatar alt={userProfile.name} src={userProfile.avatarUrl} />

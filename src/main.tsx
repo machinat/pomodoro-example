@@ -8,6 +8,7 @@ import { AnswerCallbackQuery } from '@machinat/telegram/components';
 import * as Scenes from './scenes';
 import Timer from './services/Timer';
 import useIntent from './services/useIntent';
+import useAppData from './services/useAppData';
 import useSettings from './services/useSettings';
 import useUserProfile from './services/useUserProfile';
 import type {
@@ -85,6 +86,7 @@ const main = (
             Messenger.Profiler,
             Timer,
             useSettings,
+            useAppData,
           ] as const,
         })(
           (
@@ -92,7 +94,8 @@ const main = (
               scriptProcessor: Script.Processor<Scenes[keyof Scenes]>,
               messengerProfiler,
               timer,
-              fetchSettings
+              fetchSettings,
+              fetchAppData
             ) =>
             async (context) => {
               const { event } = context;
@@ -121,24 +124,31 @@ const main = (
                 runtime = await scriptProcessor.start(
                   channel,
                   Scenes.Pomodoro,
-                  {
-                    params: { settings },
-                  }
+                  { params: { settings } }
                 );
               }
 
               const { yieldValue } = runtime;
               if (yieldValue) {
+                const {
+                  updateSettings,
+                  registerTimer,
+                  cancelTimer,
+                  recordPomodoro,
+                } = yieldValue;
+
                 await Promise.all([
-                  yieldValue.updateSettings
-                    ? fetchSettings(channel, yieldValue.updateSettings)
-                    : null,
-                  yieldValue.registerTimer
-                    ? timer.registerTimer(channel, yieldValue.registerTimer)
-                    : null,
-                  yieldValue.cancelTimer
-                    ? timer.cancelTimer(channel, yieldValue.cancelTimer)
-                    : null,
+                  updateSettings && fetchSettings(channel, updateSettings),
+                  registerTimer && timer.registerTimer(channel, registerTimer),
+                  cancelTimer && timer.cancelTimer(channel, cancelTimer),
+                  recordPomodoro &&
+                    fetchAppData(channel, ({ settings, statistics }) => ({
+                      settings,
+                      statistics: {
+                        ...statistics,
+                        records: [...statistics.records, recordPomodoro],
+                      },
+                    })),
                 ]);
               }
 
@@ -149,25 +159,24 @@ const main = (
     )
     .catch(console.error);
 
-  // push web app data when connect
+  // push web app data when get_data action received
   webview$.pipe(
     filter(
-      (ctx): ctx is WebEventContext & { event: { type: 'connect' } } =>
-        ctx.event.type === 'connect'
+      (ctx): ctx is WebEventContext & { event: { type: 'get_data' } } =>
+        ctx.event.type === 'get_data'
     ),
     tap(
-      makeContainer({ deps: [useSettings, useUserProfile] as const })(
-        (fetchSettings, getUserProfile) =>
+      makeContainer({ deps: [useAppData, useUserProfile] as const })(
+        (getAppData, getUserProfile) =>
           async ({ bot, event, metadata: { auth } }) => {
-            const [settings, userProfile] = await Promise.all([
-              fetchSettings(auth.channel, null),
+            const [{ settings, statistics }, userProfile] = await Promise.all([
+              getAppData(auth.channel),
               getUserProfile(auth.user),
             ]);
-
             await bot.send(event.channel, {
               category: 'app',
               type: 'app_data',
-              payload: { settings, userProfile },
+              payload: { settings, statistics, userProfile },
             });
           }
       )

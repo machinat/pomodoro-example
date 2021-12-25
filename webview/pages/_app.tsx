@@ -1,3 +1,4 @@
+import React from 'react';
 import App from 'next/app';
 import getConfig from 'next/config';
 import WebviewClient, { useEventReducer } from '@machinat/webview/client';
@@ -30,6 +31,10 @@ const sendAction: SendWebActionFn = (action) => {
 const closeWebview = () => client.closeWebview();
 
 const PomodoroApp = ({ Component, pageProps }) => {
+  React.useEffect(() => {
+    client.send({ category: 'app', type: 'get_data', payload: null });
+  }, []);
+
   const appData = useEventReducer<WebAppData | null, WebClient>(
     client,
     (currentData, { event }) => {

@@ -1,42 +1,38 @@
 import Machinat from '@machinat/core';
 import ordinal from 'ordinal';
 import formatTime from '../utils/formatTime';
-import { ACTION_START, TimingStatus } from '../constant';
+import { ACTION_START, TimingPhase } from '../constant';
 import { PomodoroSettings } from '../types';
 import ActionsCard from './ActionsCard';
 
 type StartingCardProps = {
   remainingTime: undefined | number;
   pomodoroNum: number;
-  timingStatus: TimingStatus;
+  timingPhase: TimingPhase;
   settings: PomodoroSettings;
 };
 
 const StartingCard = ({
   remainingTime,
   pomodoroNum,
-  timingStatus,
+  timingPhase,
   settings,
 }: StartingCardProps) => {
   const msg = remainingTime
     ? `Continue ${
-        timingStatus === TimingStatus.Working
+        timingPhase === TimingPhase.Working
           ? `${ordinal(pomodoroNum)} 🍅`
           : 'break time ☕'
-      }, ${formatTime(remainingTime)} remaining`
-    : timingStatus !== TimingStatus.Working
+      }, ${formatTime(remainingTime)} remain`
+    : timingPhase !== TimingPhase.Working
     ? `Take a ${
-        timingStatus === TimingStatus.LongBreak
+        timingPhase === TimingPhase.LongBreak
           ? settings.longBreakMins
           : settings.shortBreakMins
       } min break ☕`
-    : pomodoroNum <= settings.pomodoroPerDay
-    ? `Start your ${
+    : `Start ${pomodoroNum <= settings.pomodoroPerDay ? 'your' : 'further'} ${
         pomodoroNum === settings.pomodoroPerDay ? 'last' : ordinal(pomodoroNum)
-      } 🍅 today.`
-    : `You have already finish your ${
-        settings.pomodoroPerDay
-      } 🍅 target today. Keep on ${ordinal(pomodoroNum)} 🍅?`;
+      } 🍅`;
 
   return (
     <ActionsCard

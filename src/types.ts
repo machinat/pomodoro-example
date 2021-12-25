@@ -22,6 +22,7 @@ import type {
   ACTION_ABOUT,
   ACTION_CHECK_SETTINGS,
   ACTION_SETTINGS_UPDATED,
+  ACTION_CHECK_STATISTICS,
   ACTION_START,
   ACTION_SKIP,
   ACTION_PAUSE,
@@ -41,6 +42,17 @@ export type PomodoroSettings = {
   timezone: number;
 };
 
+export type PomodoroStatistics = {
+  day: string;
+  records: [Date, Date][];
+  recentCounts: [string, number][];
+};
+
+export type PomodoroAppData = {
+  settings: PomodoroSettings;
+  statistics: PomodoroStatistics;
+};
+
 export type AppActionType =
   | typeof ACTION_START
   | typeof ACTION_SKIP
@@ -49,6 +61,7 @@ export type AppActionType =
   | typeof ACTION_ABOUT
   | typeof ACTION_CHECK_SETTINGS
   | typeof ACTION_SETTINGS_UPDATED
+  | typeof ACTION_CHECK_STATISTICS
   | typeof ACTION_OK
   | typeof ACTION_NO
   | typeof ACTION_UNKNOWN;
@@ -107,6 +120,7 @@ export type PomodoroScriptYield = {
   updateSettings?: Partial<PomodoroSettings>;
   registerTimer?: Date;
   cancelTimer?: Date;
+  recordPomodoro?: [Date, Date];
 };
 
 export type UpdateSettingsAction = {
@@ -115,13 +129,23 @@ export type UpdateSettingsAction = {
   payload: { settings: Partial<PomodoroSettings> };
 };
 
+export type GetDataAction = {
+  category: 'app';
+  type: 'get_data';
+  payload: null;
+};
+
 export type WebEventContext = WebviewEventContext<
   MessengerAuthenticator | TelegramAuthenticator | LineAuthenticator,
-  ConnectEventValue | DisconnectEventValue | UpdateSettingsAction
+  | ConnectEventValue
+  | DisconnectEventValue
+  | UpdateSettingsAction
+  | GetDataAction
 >;
 
 export type WebAppData = {
   settings: PomodoroSettings;
+  statistics: PomodoroStatistics;
   userProfile: null | MachinatProfile;
 };
 

@@ -8,7 +8,7 @@ const currentDayId = (hourOffset: number): string => {
       now.getUTCHours() + hourOffset
     )
   );
-  return `${d.getUTCFullYear()}-${d.getUTCMonth()}-${d.getUTCDate()}`;
+  return `${d.getUTCFullYear()}-${d.getUTCMonth() + 1}-${d.getUTCDate()}`;
 };
 
 export default currentDayId;

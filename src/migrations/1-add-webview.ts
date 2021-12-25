@@ -46,6 +46,9 @@ export const up = makeContainer({
     commands: [
       { command: 'settings', description: 'Settings ⚙️' },
       { command: 'statistics', description: 'Statistics  📊' },
+      { command: 'skip', description: 'Skip  ⏹' },
+      { command: 'pause', description: 'Pause  ⏸️' },
+      { command: 'start', description: 'Start  ▶️' },
     ],
   });
 });

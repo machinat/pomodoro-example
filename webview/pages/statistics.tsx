@@ -4,12 +4,19 @@ import Container from '@mui/material/Container';
 import Card from '@mui/material/Card';
 import Paper from '@mui/material/Paper';
 import CardContent from '@mui/material/CardContent';
-import CardActions from '@mui/material/CardActions';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
 import { XYPlot, VerticalBarSeries, XAxis, YAxis } from 'react-vis';
+import { ViewState } from '@devexpress/dx-react-scheduler';
+import {
+  Scheduler,
+  DayView,
+  Appointments,
+} from '@devexpress/dx-react-scheduler-material-ui';
+import ordinal from 'ordinal';
+import { PanelPageProps } from '../types';
 
-const StatisticsPanel = () => {
+const StatisticsPanel = ({ appData }: PanelPageProps) => {
   const [chartWidth, setChartWidth] = React.useState(300);
   const chartPaperRef = React.useCallback((node) => {
     if (node !== null) {
@@ -17,8 +24,59 @@ const StatisticsPanel = () => {
     }
   }, []);
 
+  let todayCount = '-';
+  let remainingCount = '-';
+  let recentAvgCount = '-';
+  let recentDaysCount = '-';
+  let finishRate = '-';
+
+  let schedulerData;
+  let cheduleStartHour = 0;
+  let cheduleEndHour = 2;
+
+  let barChartData: { x: string; y: number }[] = [];
+
+  if (appData) {
+    const {
+      settings,
+      statistics: { records, recentCounts },
+    } = appData;
+
+    todayCount = records.length.toString();
+    remainingCount = (settings.pomodoroPerDay - records.length).toString();
+
+    schedulerData = records.map(([startDate, endDate], i) => ({
+      startDate,
+      endDate,
+      title: `${ordinal(i + 1)} 🍅`,
+    }));
+    cheduleStartHour = records[0]?.[0].getHours() || 0;
+    cheduleEndHour = (records.slice(-1)[0]?.[1].getHours() || 1) + 1;
+
+    if (recentCounts.length > 0) {
+      const recentSum = recentCounts.reduce((sum, [, count]) => sum + count, 0);
+      const recentDays = recentCounts.length;
+
+      recentDaysCount = recentDays.toString();
+      recentAvgCount = (recentSum / recentDays).toFixed(1);
+      finishRate = (
+        (recentSum * 100) /
+        (recentDays * settings.pomodoroPerDay)
+      ).toFixed();
+    }
+
+    barChartData = recentCounts.map(([day, count]) => ({
+      x: day.split('-', 3).slice(1).join('/'),
+      y: count,
+    }));
+  }
+
   return (
-    <AppFrame>
+    <AppFrame
+      title="Statistics"
+      userProfile={appData?.userProfile}
+      isProcessing={!appData}
+    >
       <Container maxWidth="md" style={{ padding: '20px' }}>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6}>
@@ -28,10 +86,39 @@ const StatisticsPanel = () => {
                   Today's 🍅
                 </Typography>
                 <Typography variant="h2" component="div">
-                  15
+                  {todayCount}
                 </Typography>
-                <Typography color="text.secondary">3 remaining...</Typography>
+                <Typography color="text.secondary">
+                  <b>{remainingCount}</b> remaining...
+                </Typography>
               </CardContent>
+            </Card>
+          </Grid>
+
+          <Grid item xs={12} md={6}>
+            <Card>
+              <Scheduler data={schedulerData}>
+                <ViewState currentDate={appData?.statistics.day} />
+                <DayView
+                  displayName="schedule"
+                  startDayHour={cheduleStartHour}
+                  endDayHour={cheduleEndHour}
+                  cellDuration={60}
+                />
+                <Appointments
+                  appointmentComponent={({
+                    children,
+                    ...restProps
+                  }: Appointments.AppointmentProps) => (
+                    <Appointments.Appointment
+                      {...restProps}
+                      style={{ backgroundColor: '#e77' }}
+                    >
+                      {children}
+                    </Appointments.Appointment>
+                  )}
+                />
+              </Scheduler>
             </Card>
           </Grid>
 
@@ -42,56 +129,37 @@ const StatisticsPanel = () => {
                   Avg. 🍅
                 </Typography>
                 <Typography variant="h2" component="div">
-                  10
+                  {recentAvgCount}
                 </Typography>
-                <Typography color="text.secondary">for last 10 days</Typography>
+                <Typography color="text.secondary">
+                  for last <b>{recentDaysCount}</b> days
+                </Typography>
               </CardContent>
             </Card>
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} sm={6}>
             <Card>
               <CardContent>
                 <Typography variant="h4" component="div">
-                  Settings
+                  Finish Rate
                 </Typography>
-                <Typography>
-                  <ul>
-                    <li>Working Time: 25 min</li>
-                    <li>Short Break Time: 5 min</li>
-                    <li>Long Break Time: 30 min;</li>
-                    <li>Pomodoro Per Day: 12 🍅</li>
-                    <li>Timezone: GMT +8</li>
-                  </ul>
+                <Typography variant="h2" component="div">
+                  {finishRate} %
                 </Typography>
               </CardContent>
-              <CardActions></CardActions>
             </Card>
           </Grid>
 
           <Grid item xs={12} md={6}>
             <Paper ref={chartPaperRef}>
               <XYPlot width={chartWidth} height={300} xType="ordinal">
-                <XAxis />
+                <XAxis tickLabelAngle={-45} tickSize={3} />
                 <YAxis />
-                <VerticalBarSeries
-                  data={[
-                    { x: '10/1', y: 7 },
-                    { x: '10/2', y: 9 },
-                    { x: '10/3', y: 3 },
-                    { x: '10/4', y: 1 },
-                    { x: '10/5', y: 7 },
-                    { x: '10/6', y: 7 },
-                    { x: '10/7', y: 7 },
-                    { x: '10/8', y: 7 },
-                    { x: '10/9', y: 7 },
-                  ]}
-                  color="red"
-                />
+                <VerticalBarSeries data={barChartData} color="#e77" />
               </XYPlot>
             </Paper>
           </Grid>
-          <Grid item sm={12} md={6}></Grid>
         </Grid>
       </Container>
     </AppFrame>

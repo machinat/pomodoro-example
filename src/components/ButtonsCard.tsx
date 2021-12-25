@@ -59,23 +59,24 @@ const ButtonsCard =
         return (
           <Telegram.Text
             replyMarkup={
-              <Telegram.ReplyKeyboard resizeKeyboard>
-                <Telegram.KeyboardRow>
-                  {buttons.map((button) =>
-                    button.type === 'action' ? (
-                      <Telegram.TextReply text={button.text} />
-                    ) : button.type === 'webview' ? (
-                      <Telegram.UrlButton
-                        login
-                        text={button.text}
-                        url={`https://${domain}/auth/telegram?redirectUrl=${encodeURIComponent(
-                          `/webview/${button.path}`
-                        )}`}
-                      />
-                    ) : null
-                  )}
-                </Telegram.KeyboardRow>
-              </Telegram.ReplyKeyboard>
+              <Telegram.InlineKeyboard>
+                {buttons.map((button) =>
+                  button.type === 'action' ? (
+                    <Telegram.CallbackButton
+                      text={button.text}
+                      data={encodeActionType(button.action)}
+                    />
+                  ) : button.type === 'webview' ? (
+                    <Telegram.UrlButton
+                      login
+                      text={button.text}
+                      url={`https://${domain}/auth/telegram?redirectUrl=${encodeURIComponent(
+                        `/webview/${button.path}`
+                      )}`}
+                    />
+                  ) : null
+                )}
+              </Telegram.InlineKeyboard>
             }
           >
             {children}

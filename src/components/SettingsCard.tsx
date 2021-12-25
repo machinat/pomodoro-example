@@ -1,10 +1,9 @@
-import Machinat, { MachinatNode } from '@machinat/core';
+import Machinat from '@machinat/core';
 import { ACTION_OK, WEBVIEW_SETTINGS_PATH } from '../constant';
 import type { PomodoroSettings } from '../types';
 import ButtonsCard, { ButtonData } from './ButtonsCard';
 
 type SettingsCardProps = {
-  children?: MachinatNode;
   settings: PomodoroSettings;
   noTitle?: boolean;
   withEditButton?: boolean;

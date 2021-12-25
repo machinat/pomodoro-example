@@ -2,8 +2,6 @@ import React from 'react';
 import Container from '@mui/material/Container';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
-import Backdrop from '@mui/material/Backdrop';
-import CircularProgress from '@mui/material/CircularProgress';
 import AppFrame from '../components/AppFrame';
 import NummericSetting from '../components/NummericSetting';
 import { PomodoroSettings, PanelPageProps } from '../types';
@@ -40,14 +38,11 @@ const SettingsPanel = ({
   const displayedSettings = settings ? { ...settings, ...settingsInput } : null;
 
   return (
-    <AppFrame userProfile={appData?.userProfile}>
-      <Backdrop
-        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
-        open={!settings || isUpdating}
-      >
-        <CircularProgress color="inherit" />
-      </Backdrop>
-
+    <AppFrame
+      title="Settings"
+      userProfile={appData?.userProfile}
+      isProcessing={!settings || isUpdating}
+    >
       <Container style={{ padding: '30px' }} maxWidth="sm">
         <Stack spacing={2}>
           <NummericSetting

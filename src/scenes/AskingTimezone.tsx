@@ -28,7 +28,7 @@ export default build<
     {({ platform }) => {
       const askingTz = 'Please enter your timezone in number';
       const askingTzOrLocaction =
-        'Please send me your location or enter your timezone in number';
+        'Please send me your location or enter the timezone';
 
       return (
         <RequestLocationIfPossible makeLineAltText={() => askingTz}>
@@ -64,6 +64,7 @@ export default build<
             }
             return { answer, timezone: undefined, isValid: false };
           }
+          return { answer, timezone: undefined, isValid: false };
         }
 
         return {
@@ -76,7 +77,7 @@ export default build<
 
     {({ vars }) =>
       vars.isValid ? null : (
-        <p>{vars.answer} is not a valid timezone. You can set it later when</p>
+        <p>{vars.answer} is not a valid timezone. You can set it later</p>
       )
     }
 
