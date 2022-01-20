@@ -31,8 +31,8 @@ const StatisticsPanel = ({ appData }: PanelPageProps) => {
   let finishRate = '-';
 
   let schedulerData;
-  let cheduleStartHour = 0;
-  let cheduleEndHour = 2;
+  let scheduleStartHour = 0;
+  let scheduleEndHour = 2;
 
   let barChartData: { x: string; y: number }[] = [];
 
@@ -50,8 +50,8 @@ const StatisticsPanel = ({ appData }: PanelPageProps) => {
       endDate,
       title: `${ordinal(i + 1)} 🍅`,
     }));
-    cheduleStartHour = records[0]?.[0].getHours() || 0;
-    cheduleEndHour = (records.slice(-1)[0]?.[1].getHours() || 1) + 1;
+    scheduleStartHour = records[0]?.[0].getHours() || 0;
+    scheduleEndHour = (records[records.length - 1]?.[1].getHours() || 1) + 1;
 
     if (recentCounts.length > 0) {
       const recentSum = recentCounts.reduce((sum, [, count]) => sum + count, 0);
@@ -79,7 +79,7 @@ const StatisticsPanel = ({ appData }: PanelPageProps) => {
     >
       <Container maxWidth="md" style={{ padding: '20px' }}>
         <Grid container spacing={2}>
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={12} sm={4}>
             <Card>
               <CardContent>
                 <Typography variant="h4" component="div">
@@ -95,14 +95,43 @@ const StatisticsPanel = ({ appData }: PanelPageProps) => {
             </Card>
           </Grid>
 
+          <Grid item xs={12} sm={4}>
+            <Card>
+              <CardContent>
+                <Typography variant="h4" component="div">
+                  Avg. 🍅
+                </Typography>
+                <Typography variant="h2" component="div">
+                  {recentAvgCount}
+                </Typography>
+                <Typography color="text.secondary">
+                  for last <b>{recentDaysCount}</b> days
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          <Grid item xs={12} sm={4}>
+            <Card>
+              <CardContent>
+                <Typography variant="h4" component="div">
+                  Finish Rate
+                </Typography>
+                <Typography variant="h2" component="div">
+                  {finishRate} %
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+
           <Grid item xs={12} md={6}>
             <Card>
               <Scheduler data={schedulerData}>
                 <ViewState currentDate={appData?.statistics.day} />
                 <DayView
                   displayName="schedule"
-                  startDayHour={cheduleStartHour}
-                  endDayHour={cheduleEndHour}
+                  startDayHour={scheduleStartHour}
+                  endDayHour={scheduleEndHour}
                   cellDuration={60}
                 />
                 <Appointments
@@ -119,35 +148,6 @@ const StatisticsPanel = ({ appData }: PanelPageProps) => {
                   )}
                 />
               </Scheduler>
-            </Card>
-          </Grid>
-
-          <Grid item xs={12} sm={6}>
-            <Card>
-              <CardContent>
-                <Typography variant="h4" component="div">
-                  Avg. 🍅
-                </Typography>
-                <Typography variant="h2" component="div">
-                  {recentAvgCount}
-                </Typography>
-                <Typography color="text.secondary">
-                  for last <b>{recentDaysCount}</b> days
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          <Grid item xs={12} sm={6}>
-            <Card>
-              <CardContent>
-                <Typography variant="h4" component="div">
-                  Finish Rate
-                </Typography>
-                <Typography variant="h2" component="div">
-                  {finishRate} %
-                </Typography>
-              </CardContent>
             </Card>
           </Grid>
 
