@@ -1,6 +1,6 @@
 import Machinat from '@machinat/core';
 import { build } from '@machinat/script';
-import { EFFECT, WHILE, PROMPT, RETURN } from '@machinat/script/keywords';
+import * as $ from '@machinat/script/keywords';
 import ReplyBasicActions from '../components/ReplyBasicActions';
 import StartingCard from '../components/StartingCard';
 import currentDayId from '../utils/currentDayId';
@@ -37,7 +37,7 @@ type StartingReturn = {
 };
 
 const CHECK_DAY_CHANGE = () => (
-  <EFFECT<StartingVars>
+  <$.EFFECT<StartingVars>
     set={({ vars }) => {
       const dayId = currentDayId(vars.settings.timezone);
       const isDayChanged = dayId !== vars.dayId;
@@ -71,7 +71,7 @@ export default build<
     }),
   },
   <>
-    <WHILE<StartingVars>
+    <$.WHILE<StartingVars>
       condition={({ vars: { action } }) => action !== ACTION_START}
     >
       {CHECK_DAY_CHANGE()}
@@ -102,7 +102,7 @@ export default build<
         );
       }}
 
-      <PROMPT<StartingVars, PomodoroEventContext>
+      <$.PROMPT<StartingVars, PomodoroEventContext>
         key="wait-start"
         set={async ({ vars }, { event, intent }) => {
           return {
@@ -120,9 +120,9 @@ export default build<
       />
 
       {CHECK_DAY_CHANGE()}
-    </WHILE>
+    </$.WHILE>
 
-    <RETURN<StartingVars, StartingReturn>
+    <$.RETURN<StartingVars, StartingReturn>
       value={({ vars: { settings, isDayChanged } }) => ({
         settings,
         isDayChanged,

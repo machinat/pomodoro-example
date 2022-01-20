@@ -1,6 +1,6 @@
 import Machinat from '@machinat/core';
 import { build } from '@machinat/script';
-import { PROMPT, RETURN } from '@machinat/script/keywords';
+import * as $ from '@machinat/script/keywords';
 import RequestLocationIfPossible from '../components/RequestLocationIfPossible';
 import type { PomodoroEventContext } from '../types';
 
@@ -39,7 +39,7 @@ export default build<
       );
     }}
 
-    <PROMPT<AskingTimezoneVars, PomodoroEventContext>
+    <$.PROMPT<AskingTimezoneVars, PomodoroEventContext>
       key="ask"
       set={(_, { event }) => {
         if (event.type === 'location') {
@@ -81,7 +81,7 @@ export default build<
       )
     }
 
-    <RETURN<AskingTimezoneVars, AskingTimezoneReturn>
+    <$.RETURN<AskingTimezoneVars, AskingTimezoneReturn>
       value={({ vars }) => ({ timezone: vars.timezone })}
     />
   </>

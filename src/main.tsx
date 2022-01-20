@@ -112,7 +112,7 @@ const main = (
                     const profile = await messengerProfiler.getUserProfile(
                       event.user
                     );
-                    timezone = profile?.timezone;
+                    timezone = profile?.timeZone;
                   } catch {}
                 }
 

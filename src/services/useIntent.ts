@@ -18,7 +18,7 @@ import {
 } from '../types';
 
 const useIntent =
-  (recognizer: DialogFlow.IntentRecognizer) =>
+  (recognizer: DialogFlow.Recognizer) =>
   async (
     event:
       | MessengerEvent
@@ -81,5 +81,5 @@ const useIntent =
 
 export default makeFactoryProvider({
   lifetime: 'scoped',
-  deps: [DialogFlow.IntentRecognizer],
+  deps: [DialogFlow.Recognizer],
 })(useIntent);

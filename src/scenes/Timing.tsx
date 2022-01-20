@@ -1,15 +1,7 @@
 import ordinal from 'ordinal';
 import Machinat from '@machinat/core';
 import { build } from '@machinat/script';
-import {
-  $,
-  IF,
-  THEN,
-  WHILE,
-  PROMPT,
-  EFFECT,
-  RETURN,
-} from '@machinat/script/keywords';
+import * as $ from '@machinat/script/keywords';
 import TimingCard from '../components/TimingCard';
 import StopingCard from '../components/StopingCard';
 import ReplyBasicActions from '../components/ReplyBasicActions';
@@ -48,7 +40,7 @@ type TimingReturn = {
 };
 
 const PROMPT_WHEN_TIMING = (key: string) => (
-  <PROMPT<TimingVars, PomodoroEventContext>
+  <$.PROMPT<TimingVars, PomodoroEventContext>
     key={key}
     set={async ({ vars }, { event, intent }) => ({
       ...vars,
@@ -75,8 +67,8 @@ export default build<
       action: ACTION_UNKNOWN,
     }),
   },
-  <$<TimingVars>>
-    <WHILE<TimingVars>
+  <$.BLOCK<TimingVars>>
+    <$.WHILE<TimingVars>
       condition={({ vars: { action, time, beginAt } }) =>
         action !== ACTION_TIME_UP &&
         action !== ACTION_PAUSE &&
@@ -107,24 +99,24 @@ export default build<
       {PROMPT_WHEN_TIMING('wait-timing-up')}
 
       {/* double check for skipping working phase */}
-      <IF<TimingVars>
+      <$.IF<TimingVars>
         condition={({ vars }) =>
           vars.action === ACTION_SKIP && vars.phase === TimingPhase.Working
         }
       >
-        <THEN>
+        <$.THEN>
           {() => <StopingCard>Skip current 🍅?</StopingCard>}
           {PROMPT_WHEN_TIMING('ask-should-skip')}
 
-          <EFFECT<TimingVars>
+          <$.EFFECT<TimingVars>
             set={({ vars }) => ({
               ...vars,
               action: vars.action === ACTION_OK ? ACTION_SKIP : vars.action,
             })}
           />
-        </THEN>
-      </IF>
-    </WHILE>
+        </$.THEN>
+      </$.IF>
+    </$.WHILE>
 
     {({ vars: { action, phase, pomodoroNum, settings } }) => {
       if (phase !== TimingPhase.Working) {
@@ -156,7 +148,7 @@ export default build<
       );
     }}
 
-    <RETURN<TimingVars, TimingReturn>
+    <$.RETURN<TimingVars, TimingReturn>
       value={({ vars: { beginAt, time, settings, phase, action } }) => ({
         settings,
         pomodoroRecord:
@@ -169,5 +161,5 @@ export default build<
             : 0,
       })}
     />
-  </$>
+  </$.BLOCK>
 );

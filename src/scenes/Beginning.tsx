@@ -1,14 +1,6 @@
 import Machinat from '@machinat/core';
 import { build } from '@machinat/script';
-import {
-  $,
-  IF,
-  THEN,
-  PROMPT,
-  CALL,
-  EFFECT,
-  RETURN,
-} from '@machinat/script/keywords';
+import * as $ from '@machinat/script/keywords';
 import SettingsCard from '../components/SettingsCard';
 import Pause from '../components/Pause';
 import { ACTION_UNKNOWN, ACTION_SETTINGS_UPDATED } from '../constant';
@@ -45,7 +37,7 @@ export default build<
       shouldSaveTz: false,
     }),
   },
-  <$<BeginningVars>>
+  <$.BLOCK<BeginningVars>>
     {() => (
       <>
         <p>Hello! 🍅</p>
@@ -54,19 +46,19 @@ export default build<
       </>
     )}
 
-    <IF
+    <$.IF
       condition={({ platform }) =>
         platform === 'telegram' || platform === 'line'
       }
     >
-      <THEN>
+      <$.THEN>
         {() => (
           <>
             I need to know your timezone to count 🍅
             <Pause />
           </>
         )}
-        <CALL<BeginningVars, typeof AskingTimezone>
+        <$.CALL<BeginningVars, typeof AskingTimezone>
           script={AskingTimezone}
           key="ask-timezone"
           params={({ vars: { settings } }) => ({ timezone: settings.timezone })}
@@ -83,7 +75,7 @@ export default build<
           }}
         />
 
-        <EFFECT<BeginningVars, PomodoroScriptYield>
+        <$.EFFECT<BeginningVars, PomodoroScriptYield>
           yield={({ vars }, prev) => ({
             ...prev,
             updateSettings: vars.shouldSaveTz
@@ -94,8 +86,8 @@ export default build<
               : undefined,
           })}
         />
-      </THEN>
-    </IF>
+      </$.THEN>
+    </$.IF>
 
     {({ vars }) => (
       <>
@@ -110,7 +102,7 @@ export default build<
       </>
     )}
 
-    <PROMPT<BeginningVars, PomodoroEventContext>
+    <$.PROMPT<BeginningVars, PomodoroEventContext>
       key="confirm-settings"
       set={async ({ vars }, { event, intent }) => ({
         ...vars,
@@ -139,8 +131,8 @@ export default build<
       );
     }}
 
-    <RETURN<BeginningVars, BeginningReturn>
+    <$.RETURN<BeginningVars, BeginningReturn>
       value={({ vars: { settings } }) => ({ settings })}
     />
-  </$>
+  </$.BLOCK>
 );

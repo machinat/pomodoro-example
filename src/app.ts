@@ -8,16 +8,17 @@ import Telegram from '@machinat/telegram';
 import TelegramAuthenticator from '@machinat/telegram/webview';
 import Webview from '@machinat/webview';
 import RedisState from '@machinat/redis-state';
-import { FileState } from '@machinat/local-state';
+import { FileState } from '@machinat/dev-tools';
 import DialogFlow from '@machinat/dialogflow';
 import Script from '@machinat/script';
+import nextConfigs from '../webview/next.config.js';
+import recognitionData from './recognitionData';
 import * as scenesScirpts from './scenes';
 import useIntent from './services/useIntent';
 import useAppData from './services/useAppData';
 import useSettings from './services/useSettings';
 import useUserProfile from './services/useUserProfile';
 import Timer from './services/Timer';
-import nextConfigs from '../webview/next.config.js';
 import { ServerDomain, LineLiffId } from './interface';
 
 const {
@@ -53,41 +54,6 @@ const {
 const DEV = NODE_ENV !== 'production';
 
 const app = Machinat.createApp({
-  modules: [
-    HTTP.initModule({
-      listenOptions: {
-        port: PORT ? Number(PORT) : 8080,
-      },
-    }),
-
-    DEV
-      ? FileState.initModule({
-          path: './.state_storage',
-        })
-      : RedisState.initModule({
-          clientOptions: {
-            url: REDIS_URL,
-          },
-        }),
-
-    Script.initModule({
-      libs: Object.values(scenesScirpts),
-    }),
-
-    DialogFlow.initModule({
-      projectId: DIALOG_FLOW_PROJECT_ID,
-      gcpAuthConfig: GOOGLE_APPLICATION_CREDENTIALS
-        ? undefined
-        : {
-            credentials: {
-              client_email: DIALOG_FLOW_CLIENT_EMAIL,
-              private_key: DIALOG_FLOW_PRIVATE_KEY,
-            },
-          },
-      defaultLanguageCode: 'en-US',
-    }),
-  ],
-
   platforms: [
     Messenger.initModule({
       webhookPath: '/webhook/messenger',
@@ -126,6 +92,42 @@ const app = Machinat.createApp({
         dir: './webview',
         conf: nextConfigs,
       },
+    }),
+  ],
+
+  modules: [
+    HTTP.initModule({
+      listenOptions: {
+        port: PORT ? Number(PORT) : 8080,
+      },
+    }),
+
+    DEV
+      ? FileState.initModule({
+          path: './.state_storage',
+        })
+      : RedisState.initModule({
+          clientOptions: {
+            url: REDIS_URL,
+          },
+        }),
+
+    Script.initModule({
+      libs: Object.values(scenesScirpts),
+    }),
+
+    DialogFlow.initModule({
+      recognitionData,
+      projectId: DIALOG_FLOW_PROJECT_ID,
+      environment: `pomodoro-example-${DEV ? 'dev' : 'prod'}`,
+      clientOptions: GOOGLE_APPLICATION_CREDENTIALS
+        ? undefined
+        : {
+            credentials: {
+              client_email: DIALOG_FLOW_CLIENT_EMAIL,
+              private_key: DIALOG_FLOW_PRIVATE_KEY,
+            },
+          },
     }),
   ],
 
