@@ -87,7 +87,7 @@ const main = (
             Timer,
             useSettings,
             useAppData,
-          ] as const,
+          ],
         })(
           (
               bot,
@@ -166,7 +166,7 @@ const main = (
         ctx.event.type === 'get_data'
     ),
     tap(
-      makeContainer({ deps: [useAppData, useUserProfile] as const })(
+      makeContainer({ deps: [useAppData, useUserProfile] })(
         (getAppData, getUserProfile) =>
           async ({ bot, event, metadata: { auth } }) => {
             const [{ settings, statistics }, userProfile] = await Promise.all([

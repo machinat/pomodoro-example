@@ -8,7 +8,7 @@ const { DOMAIN } = process.env;
 const ENTRY_URL = `https://${DOMAIN}`;
 
 export const up = makeContainer({
-  deps: [Messenger.Bot, Telegram.Bot, Line.Bot] as const,
+  deps: [Messenger.Bot, Telegram.Bot, Line.Bot],
 })(async (messengerBot, telegramBot) => {
   // register domain
   await messengerBot.makeApiCall('POST', 'me/messenger_profile', {
@@ -54,7 +54,7 @@ export const up = makeContainer({
 });
 
 export const down = makeContainer({
-  deps: [Messenger.Bot, Telegram.Bot] as const,
+  deps: [Messenger.Bot, Telegram.Bot],
 })(async (messengerBot, telegramBot) => {
   // clear page profile in Messenger
   await messengerBot.makeApiCall('DELETE', 'me/messenger_profile', {
