@@ -10,9 +10,9 @@ import type {
   TelegramEventContext,
 } from '@machinat/telegram';
 import type { LineChat, LineUser, LineEventContext } from '@machinat/line';
-import type MessengerAuthenticator from '@machinat/messenger/webview';
-import type LineAuthenticator from '@machinat/line/webview';
-import type TelegramAuthenticator from '@machinat/telegram/webview';
+import type MessengerWebviewAuth from '@machinat/messenger/webview';
+import type LineWebviewAuth from '@machinat/line/webview';
+import type TelegramWebviewAuth from '@machinat/telegram/webview';
 import type {
   WebviewEventContext,
   ConnectEventValue,
@@ -136,7 +136,7 @@ export type GetDataAction = {
 };
 
 export type WebEventContext = WebviewEventContext<
-  MessengerAuthenticator | TelegramAuthenticator | LineAuthenticator,
+  MessengerWebviewAuth | TelegramWebviewAuth | LineWebviewAuth,
   | ConnectEventValue
   | DisconnectEventValue
   | UpdateSettingsAction
