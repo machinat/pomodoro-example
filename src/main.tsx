@@ -1,5 +1,4 @@
-import Machinat from '@machinat/core';
-import { makeContainer } from '@machinat/core/service';
+import Machinat, { makeContainer, BasicBot } from '@machinat/core';
 import Script from '@machinat/script';
 import { merge, Stream } from '@machinat/stream';
 import { filter, tap, map } from '@machinat/stream/operators';
@@ -81,7 +80,7 @@ const main = (
       tap(
         makeContainer({
           deps: [
-            Machinat.Bot,
+            BasicBot,
             Script.Processor,
             Messenger.Profiler,
             Timer,

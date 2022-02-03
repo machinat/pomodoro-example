@@ -1,5 +1,4 @@
-import Machinat from '@machinat/core';
-import { makeContainer } from '@machinat/core/service';
+import Machinat, { makeContainer } from '@machinat/core';
 import useAppData from '../services/useAppData';
 import { WEBVIEW_STATISTICS_PATH } from '../constant';
 import type { AppChannel } from '../types';

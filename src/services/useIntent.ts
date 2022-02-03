@@ -1,4 +1,4 @@
-import { makeFactoryProvider } from '@machinat/core/service';
+import { makeFactoryProvider } from '@machinat/core';
 import DialogFlow from '@machinat/dialogflow';
 import { MessengerEvent } from '@machinat/messenger';
 import { TelegramEvent } from '@machinat/telegram';

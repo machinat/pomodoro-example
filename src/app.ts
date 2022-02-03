@@ -144,7 +144,6 @@ const createApp = ({ noServer = false }: CreateAppOptions = {}) => {
       }),
     ],
 
-
     services: [
       Timer,
       useIntent,
