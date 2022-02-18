@@ -9,7 +9,7 @@ Try the bot on these chat platforms:
 
 - [Messenger](https://www.messenger.com/t/108718514867099)
 - [Telegram](https://t.me/MachinatPomodoroBot)
-- [LINE](https://line.me/ti/p/555iakrs)
+- [LINE](https://line.me/ti/p/@555iakrs)
 
 ## Getting Started
 
