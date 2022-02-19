@@ -7,9 +7,13 @@ A pomodoro timer in chatting.
 
 Try the bot on these chat platforms:
 
-- [Messenger](https://www.messenger.com/t/108718514867099)
 - [Telegram](https://t.me/MachinatPomodoroBot)
 - [LINE](https://line.me/ti/p/@555iakrs)
+- [Messenger](https://www.messenger.com/t/108718514867099)
+
+> ⚠ There is [a Facebook bug](https://developers.facebook.com/support/bugs/294949372549147)
+> that breaks webviews on the **Messenger website** client.
+> Please use the **Messenger mobile app** intead.
 
 ## Getting Started
 
