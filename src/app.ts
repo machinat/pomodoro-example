@@ -19,10 +19,10 @@ import useAppData from './services/useAppData';
 import useSettings from './services/useSettings';
 import useUserProfile from './services/useUserProfile';
 import Timer from './services/Timer';
-import { ServerDomain, LineLiffId } from './interface';
 
 const {
-  // location
+  // basic
+  APP_NAME,
   PORT,
   DOMAIN,
   NODE_ENV,
@@ -38,6 +38,7 @@ const {
   LINE_CHANNEL_SECRET,
   LINE_LIFF_ID,
   // telegram
+  TELEGRAM_BOT_NAME,
   TELEGRAM_BOT_TOKEN,
   TELEGRAM_SECRET_PATH,
   // dialogflow
@@ -99,7 +100,7 @@ const createApp = ({ noServer = false }: CreateAppOptions = {}) => {
     platforms: [
       Messenger.initModule({
         webhookPath: '/webhook/messenger',
-        pageId: Number(MESSENGER_PAGE_ID),
+        pageId: MESSENGER_PAGE_ID,
         appSecret: MESSENGER_APP_SECRET,
         accessToken: MESSENGER_ACCESS_TOKEN,
         verifyToken: MESSENGER_VERIFY_TOKEN,
@@ -107,8 +108,9 @@ const createApp = ({ noServer = false }: CreateAppOptions = {}) => {
       }),
 
       Telegram.initModule({
-        botToken: TELEGRAM_BOT_TOKEN,
         webhookPath: '/webhook/telegram',
+        botName: TELEGRAM_BOT_NAME,
+        botToken: TELEGRAM_BOT_TOKEN,
         secretPath: TELEGRAM_SECRET_PATH,
       }),
 
@@ -118,7 +120,7 @@ const createApp = ({ noServer = false }: CreateAppOptions = {}) => {
         channelId: LINE_CHANNEL_ID,
         accessToken: LINE_ACCESS_TOKEN,
         channelSecret: LINE_CHANNEL_SECRET,
-        liffChannelIds: [LINE_LIFF_ID.split('-', 1)[0]],
+        liffId: LINE_LIFF_ID,
       }),
 
       Webview.initModule<
@@ -133,7 +135,11 @@ const createApp = ({ noServer = false }: CreateAppOptions = {}) => {
           TelegramWebviewAuth,
           LineWebviewAuth,
         ],
-        sameSite: 'none',
+        cookieSameSite: 'none',
+        basicAuth: {
+          appName: APP_NAME,
+          appImageUrl: 'https://machinat.com/img/logo.jpg',
+        },
 
         noNextServer: noServer,
         nextServerOptions: {
@@ -144,15 +150,7 @@ const createApp = ({ noServer = false }: CreateAppOptions = {}) => {
       }),
     ],
 
-    services: [
-      Timer,
-      useIntent,
-      useAppData,
-      useSettings,
-      useUserProfile,
-      { provide: ServerDomain, withValue: DOMAIN },
-      { provide: LineLiffId, withValue: LINE_LIFF_ID },
-    ],
+    services: [Timer, useIntent, useAppData, useSettings, useUserProfile],
   });
 
   return app;

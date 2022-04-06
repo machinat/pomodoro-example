@@ -1,5 +1,5 @@
 import Machinat from '@machinat/core';
-import { WEBVIEW_STATISTICS_PATH } from '../constant';
+import { STATISTICS_PAGE } from '../constant';
 import ButtonsCard from './ButtonsCard';
 import Pause from './Pause';
 
@@ -17,7 +17,7 @@ const FinishTarget = ({ pomodoroTarget }: FinishTargetProps) => {
           {
             type: 'webview',
             text: 'See Records 📊',
-            path: WEBVIEW_STATISTICS_PATH,
+            page: STATISTICS_PAGE,
           },
         ]}
       >

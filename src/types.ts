@@ -1,15 +1,7 @@
 import type { MachinatProfile } from '@machinat/core';
-import type {
-  MessengerChat,
-  MessengerUser,
-  MessengerEventContext,
-} from '@machinat/messenger';
-import type {
-  TelegramChat,
-  TelegramUser,
-  TelegramEventContext,
-} from '@machinat/telegram';
-import type { LineChat, LineUser, LineEventContext } from '@machinat/line';
+import type { MessengerEventContext } from '@machinat/messenger';
+import type { TelegramEventContext } from '@machinat/telegram';
+import type { LineEventContext } from '@machinat/line';
 import type MessengerWebviewAuth from '@machinat/messenger/webview';
 import type LineWebviewAuth from '@machinat/line/webview';
 import type TelegramWebviewAuth from '@machinat/telegram/webview';
@@ -30,8 +22,8 @@ import type {
   ACTION_OK,
   ACTION_NO,
   ACTION_UNKNOWN,
-  WEBVIEW_SETTINGS_PATH,
-  WEBVIEW_STATISTICS_PATH,
+  SETTINGS_PAGE,
+  STATISTICS_PAGE,
 } from './constant';
 
 export type PomodoroSettings = {
@@ -66,17 +58,15 @@ export type AppActionType =
   | typeof ACTION_NO
   | typeof ACTION_UNKNOWN;
 
-export type WebviewPath =
-  | typeof WEBVIEW_SETTINGS_PATH
-  | typeof WEBVIEW_STATISTICS_PATH;
-
-export type AppChannel = MessengerChat | TelegramChat | LineChat;
-export type AppUser = MessengerUser | TelegramUser | LineUser;
+export type WebviewPage = typeof SETTINGS_PAGE | typeof STATISTICS_PAGE;
 
 export type ChatEventContext =
   | MessengerEventContext
   | TelegramEventContext
   | LineEventContext;
+
+export type AppChannel = NonNullable<ChatEventContext['event']['channel']>;
+export type AppUser = NonNullable<ChatEventContext['event']['user']>;
 
 export type AppTimeUpEvent = {
   platform: 'messenger' | 'telegram' | 'line';

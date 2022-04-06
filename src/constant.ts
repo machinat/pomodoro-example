@@ -20,5 +20,5 @@ export enum TimingPhase {
   LongBreak,
 }
 
-export const WEBVIEW_STATISTICS_PATH = 'statistics';
-export const WEBVIEW_SETTINGS_PATH = 'settings';
+export const STATISTICS_PAGE = 'statistics';
+export const SETTINGS_PAGE = 'settings';

@@ -1,6 +1,6 @@
 import Machinat, { makeContainer } from '@machinat/core';
 import useAppData from '../services/useAppData';
-import { WEBVIEW_STATISTICS_PATH } from '../constant';
+import { STATISTICS_PAGE } from '../constant';
 import type { AppChannel } from '../types';
 import ButtonsCard from './ButtonsCard';
 
@@ -38,9 +38,7 @@ export default makeContainer({ deps: [useAppData] })(function StatisticsCard(
     return (
       <ButtonsCard
         makeLineAltText={(template) => `${template.text}`}
-        buttons={[
-          { type: 'webview', text: 'More 📊', path: WEBVIEW_STATISTICS_PATH },
-        ]}
+        buttons={[{ type: 'webview', text: 'More 📊', page: STATISTICS_PAGE }]}
       >
         {settingsDesc}
       </ButtonsCard>

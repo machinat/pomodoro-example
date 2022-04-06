@@ -2,27 +2,31 @@ import React from 'react';
 import App from 'next/app';
 import getConfig from 'next/config';
 import WebviewClient, { useEventReducer } from '@machinat/webview/client';
-import MessengerWebviewAuth from '@machinat/messenger/webview/client';
-import TelegramWebviewAuth from '@machinat/telegram/webview/client';
-import LineWebviewAuth from '@machinat/line/webview/client';
-import { WebClient, WebAppData, SendWebActionFn } from '../types';
+import MessengerAuth from '@machinat/messenger/webview/client';
+import TelegramAuth from '@machinat/telegram/webview/client';
+import LineAuth from '@machinat/line/webview/client';
+import { WebPushEvent } from '../../src/types';
+import { WebAppData, SendWebActionFn } from '../types';
 
 const { publicRuntimeConfig } = getConfig();
 
-const client: WebClient = new WebviewClient({
+const client = new WebviewClient<
+  MessengerAuth | TelegramAuth | LineAuth,
+  WebPushEvent
+>({
   mockupMode: typeof window === 'undefined',
   authPlatforms: [
-    new MessengerWebviewAuth({
-      appId: publicRuntimeConfig.messengerAppId,
+    new MessengerAuth({
+      pageId: publicRuntimeConfig.messengerPageId,
     }),
-    new TelegramWebviewAuth(),
-    new LineWebviewAuth({
+    new TelegramAuth({
+      botName: publicRuntimeConfig.telegramBotName,
+    }),
+    new LineAuth({
       liffId: publicRuntimeConfig.lineLiffId,
     }),
   ],
 });
-
-client.onError(console.error);
 
 const sendAction: SendWebActionFn = (action) => {
   client.send(action);
@@ -35,7 +39,7 @@ const PomodoroApp = ({ Component, pageProps }) => {
     client.send({ category: 'app', type: 'get_data', payload: null });
   }, []);
 
-  const appData = useEventReducer<WebAppData | null, WebClient>(
+  const appData = useEventReducer<WebAppData | null>(
     client,
     (currentData, { event }) => {
       if (event.type === 'app_data') {

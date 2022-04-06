@@ -1,5 +1,5 @@
 import Machinat from '@machinat/core';
-import { ACTION_OK, WEBVIEW_SETTINGS_PATH } from '../constant';
+import { ACTION_OK, SETTINGS_PAGE } from '../constant';
 import type { PomodoroSettings } from '../types';
 import ButtonsCard, { ButtonData } from './ButtonsCard';
 
@@ -36,7 +36,7 @@ const SettingsCard = ({
     buttons.push({
       type: 'webview',
       text: 'Edit 📝',
-      path: WEBVIEW_SETTINGS_PATH,
+      page: SETTINGS_PAGE,
     });
   }
   if (withOkButton) {
