@@ -2,9 +2,9 @@ import type { MachinatProfile } from '@machinat/core';
 import type { MessengerEventContext } from '@machinat/messenger';
 import type { TelegramEventContext } from '@machinat/telegram';
 import type { LineEventContext } from '@machinat/line';
-import type MessengerWebviewAuth from '@machinat/messenger/webview';
-import type LineWebviewAuth from '@machinat/line/webview';
-import type TelegramWebviewAuth from '@machinat/telegram/webview';
+import type MessengerAuth from '@machinat/messenger/webview';
+import type LineAuth from '@machinat/line/webview';
+import type TelegramAuth from '@machinat/telegram/webview';
 import type {
   WebviewEventContext,
   ConnectEventValue,
@@ -119,18 +119,11 @@ export type UpdateSettingsAction = {
   payload: { settings: Partial<PomodoroSettings> };
 };
 
-export type GetDataAction = {
-  category: 'app';
-  type: 'get_data';
-  payload: null;
-};
+export type WebviewAction = UpdateSettingsAction;
 
 export type WebEventContext = WebviewEventContext<
-  MessengerWebviewAuth | TelegramWebviewAuth | LineWebviewAuth,
-  | ConnectEventValue
-  | DisconnectEventValue
-  | UpdateSettingsAction
-  | GetDataAction
+  MessengerAuth | TelegramAuth | LineAuth,
+  ConnectEventValue | DisconnectEventValue | WebviewAction
 >;
 
 export type WebAppData = {
@@ -139,16 +132,16 @@ export type WebAppData = {
   userProfile: null | MachinatProfile;
 };
 
-export type WebAppDataPush = {
+export type AppDataPush = {
   category: 'app';
   type: 'app_data';
   payload: WebAppData;
 };
 
-export type WebSettingsUpdatedPush = {
+export type SettingsUpdatedPush = {
   category: 'app';
   type: 'settings_updated';
   payload: { settings: PomodoroSettings };
 };
 
-export type WebPushEvent = WebAppDataPush | WebSettingsUpdatedPush;
+export type WebviewPush = AppDataPush | SettingsUpdatedPush;

@@ -1,5 +1,7 @@
 import type { WebAppData, UpdateSettingsAction } from '../src/types';
 
+export type { WebviewPush } from '../src/types';
+
 export type {
   PomodoroSettings,
   UpdateSettingsAction,

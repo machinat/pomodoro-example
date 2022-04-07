@@ -1,11 +1,11 @@
 import Machinat from '@machinat/core';
 import HTTP from '@machinat/http';
 import Messenger from '@machinat/messenger';
-import MessengerWebviewAuth from '@machinat/messenger/webview';
+import MessengerAuth from '@machinat/messenger/webview';
 import Line from '@machinat/line';
-import LineWebviewAuth from '@machinat/line/webview';
+import LineAuth from '@machinat/line/webview';
 import Telegram from '@machinat/telegram';
-import TelegramWebviewAuth from '@machinat/telegram/webview';
+import TelegramAuth from '@machinat/telegram/webview';
 import Webview from '@machinat/webview';
 import RedisState from '@machinat/redis-state';
 import { FileState } from '@machinat/dev-tools';
@@ -19,6 +19,7 @@ import useAppData from './services/useAppData';
 import useSettings from './services/useSettings';
 import useUserProfile from './services/useUserProfile';
 import Timer from './services/Timer';
+import { WebviewAction } from './types';
 
 const {
   // basic
@@ -124,21 +125,18 @@ const createApp = ({ noServer = false }: CreateAppOptions = {}) => {
       }),
 
       Webview.initModule<
-        MessengerWebviewAuth | TelegramWebviewAuth | LineWebviewAuth
+        MessengerAuth | TelegramAuth | LineAuth,
+        WebviewAction
       >({
         webviewHost: DOMAIN,
         webviewPath: '/webview',
 
         authSecret: WEBVIEW_AUTH_SECRET,
-        authPlatforms: [
-          MessengerWebviewAuth,
-          TelegramWebviewAuth,
-          LineWebviewAuth,
-        ],
+        authPlatforms: [MessengerAuth, TelegramAuth, LineAuth],
         cookieSameSite: 'none',
         basicAuth: {
           appName: APP_NAME,
-          appImageUrl: 'https://machinat.com/img/logo.jpg',
+          appIconUrl: 'https://machinat.com/img/logo.jpg',
         },
 
         noNextServer: noServer,

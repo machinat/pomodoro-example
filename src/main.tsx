@@ -158,11 +158,11 @@ const main = (
     )
     .catch(console.error);
 
-  // push web app data when get_data action received
+  // push web app data when connect
   webview$.pipe(
     filter(
-      (ctx): ctx is WebEventContext & { event: { type: 'get_data' } } =>
-        ctx.event.type === 'get_data'
+      (ctx): ctx is WebEventContext & { event: { type: 'connect' } } =>
+        ctx.event.type === 'connect'
     ),
     tap(
       makeContainer({ deps: [useAppData, useUserProfile] })(
