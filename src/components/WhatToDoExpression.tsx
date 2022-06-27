@@ -1,7 +1,7 @@
-import Machinat from '@machinat/core';
-import * as Messenger from '@machinat/messenger/components';
-import * as Telegram from '@machinat/telegram/components';
-import * as Line from '@machinat/line/components';
+import Sociably from '@sociably/core';
+import * as Messenger from '@sociably/messenger/components';
+import * as Telegram from '@sociably/telegram/components';
+import * as Line from '@sociably/line/components';
 import { ACTION_OK, ACTION_CHECK_SETTINGS, ACTION_ABOUT } from '../constant';
 
 const CONTINUE = 'Continue';

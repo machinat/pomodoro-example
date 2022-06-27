@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-import { MachinatNode, MachinatProfile } from '@machinat/core';
+import { SociablyNode, SociablyProfile } from '@sociably/core';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
@@ -24,7 +24,7 @@ import PersonIcon from '@mui/icons-material/Person';
 type AppFrameProp = {
   children: ReactNode;
   title: string;
-  userProfile?: null | MachinatProfile;
+  userProfile?: null | SociablyProfile;
   isProcessing?: boolean;
 };
 
@@ -49,7 +49,7 @@ const AppFrame = ({
       `}</style>
 
       <Head>
-        <title>Pomodoro Example</title>
+        <title>Sociably Pomodoro</title>
       </Head>
 
       <Backdrop
@@ -68,7 +68,7 @@ const AppFrame = ({
         >
           <Toolbar>
             <Typography variant="h6" component="div">
-              Pomodoro Example
+              Sociably Pomodoro
             </Typography>
           </Toolbar>
           <Divider />

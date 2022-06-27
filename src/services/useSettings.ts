@@ -1,4 +1,4 @@
-import { makeFactoryProvider } from '@machinat/core';
+import { makeFactoryProvider } from '@sociably/core';
 import { PomodoroSettings, AppChannel } from '../types';
 import useAppData from './useAppData';
 

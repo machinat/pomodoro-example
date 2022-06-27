@@ -1,8 +1,8 @@
-import { makeFactoryProvider } from '@machinat/core';
-import DialogFlow from '@machinat/dialogflow';
-import { MessengerEvent } from '@machinat/messenger';
-import { TelegramEvent } from '@machinat/telegram';
-import { LineEvent } from '@machinat/line';
+import { makeFactoryProvider } from '@sociably/core';
+import DialogFlow from '@sociably/dialogflow';
+import { MessengerEvent } from '@sociably/messenger';
+import { TelegramEvent } from '@sociably/telegram';
+import { LineEvent } from '@sociably/line';
 import decodePostbackData from '../utils/decodePostbackData';
 import {
   ACTION_OK,

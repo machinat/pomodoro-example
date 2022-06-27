@@ -1,10 +1,10 @@
 import React from 'react';
 import App from 'next/app';
 import getConfig from 'next/config';
-import { useEventReducer, useClient } from '@machinat/webview/client';
-import MessengerAuth from '@machinat/messenger/webview/client';
-import TelegramAuth from '@machinat/telegram/webview/client';
-import LineAuth from '@machinat/line/webview/client';
+import { useEventReducer, useClient } from '@sociably/webview/client';
+import MessengerAuth from '@sociably/messenger/webview/client';
+import TelegramAuth from '@sociably/telegram/webview/client';
+import LineAuth from '@sociably/line/webview/client';
 import { WebAppData, SendWebActionFn, WebviewPush } from '../types';
 
 const {

@@ -1,4 +1,4 @@
-import Machinat from '@machinat/core';
+import Sociably from '@sociably/core';
 import { ACTION_OK, SETTINGS_PAGE } from '../constant';
 import type { PomodoroSettings } from '../types';
 import ButtonsCard, { ButtonData } from './ButtonsCard';

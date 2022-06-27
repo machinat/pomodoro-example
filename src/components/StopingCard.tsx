@@ -1,9 +1,9 @@
-import Machinat, { MachinatNode } from '@machinat/core';
+import Sociably, { SociablyNode } from '@sociably/core';
 import { ACTION_OK, ACTION_NO } from '../constant';
 import ActionsCard from './ActionsCard';
 
 type StopingCardProps = {
-  children: MachinatNode;
+  children: SociablyNode;
 };
 
 const StopingCard = ({ children }: StopingCardProps) => {

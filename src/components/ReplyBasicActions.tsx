@@ -1,4 +1,4 @@
-import Machinat, { MachinatNode } from '@machinat/core';
+import Sociably, { SociablyNode } from '@sociably/core';
 import {
   ACTION_ABOUT,
   ACTION_CHECK_SETTINGS,
@@ -14,7 +14,7 @@ type ReplyBasicActionsProps = {
   channel: AppChannel;
   action: AppActionType;
   settings: PomodoroSettings;
-  defaultReply?: MachinatNode;
+  defaultReply?: SociablyNode;
 };
 
 const ReplyBasicActions = ({

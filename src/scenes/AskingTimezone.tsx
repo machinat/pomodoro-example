@@ -1,6 +1,6 @@
-import Machinat from '@machinat/core';
-import { build } from '@machinat/script';
-import * as $ from '@machinat/script/keywords';
+import Sociably from '@sociably/core';
+import { build } from '@sociably/script';
+import * as $ from '@sociably/script/keywords';
 import RequestLocationIfPossible from '../components/RequestLocationIfPossible';
 import type { PomodoroEventContext } from '../types';
 

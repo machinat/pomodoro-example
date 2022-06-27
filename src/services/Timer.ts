@@ -1,5 +1,5 @@
-import { makeClassProvider, StateController, BasicBot } from '@machinat/core';
-import Script from '@machinat/script';
+import { makeClassProvider, StateController, BasicBot } from '@sociably/core';
+import Script from '@sociably/script';
 import { AppChannel } from '../types';
 
 type TimerData = {

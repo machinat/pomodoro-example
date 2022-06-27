@@ -1,5 +1,5 @@
-import { ServiceScope } from '@machinat/core/service';
-import { Stream, fromApp } from '@machinat/stream';
+import { ServiceScope } from '@sociably/core/service';
+import { Stream, fromApp } from '@sociably/stream';
 import main from './main';
 import createApp from './app';
 import Timer from './services/Timer';

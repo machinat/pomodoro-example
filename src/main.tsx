@@ -1,9 +1,9 @@
-import Machinat, { makeContainer, BasicBot } from '@machinat/core';
-import Script from '@machinat/script';
-import { merge, Stream } from '@machinat/stream';
-import { filter, tap, map } from '@machinat/stream/operators';
-import Messenger from '@machinat/messenger';
-import { AnswerCallbackQuery } from '@machinat/telegram/components';
+import Sociably, { makeContainer, BasicBot } from '@sociably/core';
+import Script from '@sociably/script';
+import { merge, Stream } from '@sociably/stream';
+import { filter, tap, map } from '@sociably/stream/operators';
+import Messenger from '@sociably/messenger';
+import { AnswerCallbackQuery } from '@sociably/telegram/components';
 import * as Scenes from './scenes';
 import Timer from './services/Timer';
 import useIntent from './services/useIntent';

@@ -1,4 +1,4 @@
-import Machinat from '@machinat/core';
+import Sociably from '@sociably/core';
 import ordinal from 'ordinal';
 import formatTime from '../utils/formatTime';
 import { ACTION_PAUSE, ACTION_SKIP, TimingPhase } from '../constant';

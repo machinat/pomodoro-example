@@ -1,10 +1,10 @@
-import Machinat, { MachinatNode } from '@machinat/core';
-import * as Messenger from '@machinat/messenger/components';
-import { WebviewButton as MessengerWebviewButton } from '@machinat/messenger/webview';
-import * as Telegram from '@machinat/telegram/components';
-import { WebviewButton as TelegramWebviewButton } from '@machinat/telegram/webview';
-import * as Line from '@machinat/line/components';
-import { WebviewAction as LineWebviewAction } from '@machinat/line/webview';
+import Sociably, { SociablyNode } from '@sociably/core';
+import * as Messenger from '@sociably/messenger/components';
+import { WebviewButton as MessengerWebviewButton } from '@sociably/messenger/webview';
+import * as Telegram from '@sociably/telegram/components';
+import { WebviewButton as TelegramWebviewButton } from '@sociably/telegram/webview';
+import * as Line from '@sociably/line/components';
+import { WebviewAction as LineWebviewAction } from '@sociably/line/webview';
 import encodePostbackData from '../utils/encodePostbackData';
 import { AppActionType, WebviewPage } from '../types';
 
@@ -23,7 +23,7 @@ type WebviewButtonData = {
 export type ButtonData = ActionButtonData | WebviewButtonData;
 
 type ButtonsCardProps = {
-  children: MachinatNode;
+  children: SociablyNode;
   buttons: ButtonData[];
   makeLineAltText: (template: Record<string, unknown>) => string;
 };

@@ -1,4 +1,4 @@
-import { makeFactoryProvider, StateController } from '@machinat/core';
+import { makeFactoryProvider, StateController } from '@sociably/core';
 import { STATE_KEY_APP_DATA } from '../constant';
 import { AppChannel, PomodoroAppData } from '../types';
 import currentDayId from '../utils/currentDayId';

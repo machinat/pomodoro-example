@@ -1,4 +1,4 @@
-import Machinat, { makeContainer } from '@machinat/core';
+import Sociably, { makeContainer } from '@sociably/core';
 import useAppData from '../services/useAppData';
 import { STATISTICS_PAGE } from '../constant';
 import type { AppChannel } from '../types';

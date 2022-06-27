@@ -1,4 +1,4 @@
-import Machinat from '@machinat/core';
+import Sociably from '@sociably/core';
 import { STATISTICS_PAGE } from '../constant';
 import ButtonsCard from './ButtonsCard';
 import Pause from './Pause';
